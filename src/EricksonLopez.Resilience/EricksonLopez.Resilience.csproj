@@ -1,0 +1,17 @@
+<!-- Copyright © Erickson Lopez. MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Core resilience pipeline builders, strategy registries, transient error classifiers, and Result integration for the EricksonLopez ecosystem.</Description>
+    <PackageTags>$(CommonPackageTags);pipeline;result;result-pattern;railway-oriented-programming;error-handling;retry;circuit-breaker;rate-limiting;hedging;fallback</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Resilience.Abstractions\EricksonLopez.Resilience.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EricksonLopez.Result" />
+  </ItemGroup>
+
+</Project>

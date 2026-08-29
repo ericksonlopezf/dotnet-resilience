@@ -1,0 +1,22 @@
+<!-- Copyright © Erickson Lopez. MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>EricksonLopez.Mediator pipeline behavior integration for resilient request handling with zero-allocation continuations.</Description>
+    <PackageTags>$(CommonPackageTags);mediator;cqrs;pipeline-behavior;middleware</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Resilience.Abstractions\EricksonLopez.Resilience.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EricksonLopez.Mediator" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EricksonLopez.Resilience.Mediator.Tests" />
+  </ItemGroup>
+
+</Project>

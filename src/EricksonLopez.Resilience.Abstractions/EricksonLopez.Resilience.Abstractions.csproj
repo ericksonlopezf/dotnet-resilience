@@ -1,0 +1,13 @@
+<!-- Copyright © Erickson Lopez. MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Core resilience abstractions, contracts, context, strategy options, and classification models for the EricksonLopez ecosystem.</Description>
+    <PackageTags>$(CommonPackageTags);abstractions;contracts;retry;circuit-breaker;timeout;rate-limiting;fallback;hedging</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Threading.RateLimiting" />
+  </ItemGroup>
+
+</Project>

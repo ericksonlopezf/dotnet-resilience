@@ -1,0 +1,27 @@
+<!-- Copyright © Erickson Lopez. MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Description>Official executable reference implementation, progressive showcase, and cookbook for EricksonLopez.Resilience.</Description>
+    <PackageTags>resilience;showcase;cookbook;reference-architecture;dotnet10;csharp</PackageTags>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CA1859;CA1861;CA1822;CA1031;CA1062;CA1848;CA2254</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.Abstractions\EricksonLopez.Resilience.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience\EricksonLopez.Resilience.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.Polly\EricksonLopez.Resilience.Polly.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.DependencyInjection\EricksonLopez.Resilience.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.Mediator\EricksonLopez.Resilience.Mediator.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.OpenTelemetry\EricksonLopez.Resilience.OpenTelemetry.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.AspNetCore\EricksonLopez.Resilience.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>

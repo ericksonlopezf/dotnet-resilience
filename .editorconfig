@@ -1,0 +1,115 @@
+# Copyright © Erickson Lopez. MIT License.
+# Top-most EditorConfig file for EricksonLopez.Resilience
+root = true
+
+# All files
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# C# files
+[*.cs]
+# Standard C# formatting
+csharp_indent_braces = false
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+csharp_space_after_cast = false
+csharp_space_around_binary_operators = before_and_after
+
+# Language and Style Rules
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_constructors = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+csharp_style_inlined_variable_declaration = true:suggestion
+
+# Implicit Usings & Unused Usings
+dotnet_diagnostic.IDE0005.severity = warning
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+
+# Naming Conventions (IDE1006)
+dotnet_diagnostic.IDE1006.severity = warning
+
+# Interfaces must begin with I
+dotnet_naming_rule.interface_rule.symbols = interface_symbols
+dotnet_naming_rule.interface_rule.style = interface_style
+dotnet_naming_rule.interface_rule.severity = warning
+
+dotnet_naming_symbols.interface_symbols.applicable_kinds = interface
+dotnet_naming_symbols.interface_symbols.applicable_accessibilities = *
+dotnet_naming_style.interface_style.required_prefix = I
+dotnet_naming_style.interface_style.capitalization = pascal_case
+
+# Types must be PascalCase
+dotnet_naming_rule.types_rule.symbols = type_symbols
+dotnet_naming_rule.types_rule.style = pascal_case_style
+dotnet_naming_rule.types_rule.severity = warning
+
+dotnet_naming_symbols.type_symbols.applicable_kinds = class, struct, enum, delegate, record
+dotnet_naming_symbols.type_symbols.applicable_accessibilities = *
+
+# Parameters must be camelCase
+dotnet_naming_rule.parameters_rule.symbols = parameter_symbols
+dotnet_naming_rule.parameters_rule.style = camel_case_style
+dotnet_naming_rule.parameters_rule.severity = warning
+
+dotnet_naming_symbols.parameter_symbols.applicable_kinds = parameter
+dotnet_naming_symbols.parameter_symbols.applicable_accessibilities = *
+
+# Private instance fields must begin with _ and be camelCase
+dotnet_naming_rule.private_fields_rule.symbols = private_field_symbols
+dotnet_naming_rule.private_fields_rule.style = private_field_style
+dotnet_naming_rule.private_fields_rule.severity = warning
+
+dotnet_naming_symbols.private_field_symbols.applicable_kinds = field
+dotnet_naming_symbols.private_field_symbols.applicable_accessibilities = private, private_protected
+dotnet_naming_symbols.private_field_symbols.required_modifiers = 
+dotnet_naming_style.private_field_style.required_prefix = _
+dotnet_naming_style.private_field_style.capitalization = camel_case
+
+# General PascalCase Style
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
+
+# General camelCase Style
+dotnet_naming_style.camel_case_style.capitalization = camel_case
+
+# Required Roslyn Code Quality & Security Diagnostics
+dotnet_diagnostic.CA1707.severity = warning
+dotnet_diagnostic.CA1852.severity = warning
+dotnet_diagnostic.CA1305.severity = warning
+dotnet_diagnostic.CS0619.severity = error
+dotnet_diagnostic.CS0618.severity = warning
+dotnet_diagnostic.CS1591.severity = warning
+dotnet_diagnostic.xUnit1051.severity = warning
+
+# Documentation comments for source libraries
+[src/**.cs]
+dotnet_diagnostic.CS1591.severity = warning
+
+# Test assemblies exception for test method naming conventions
+[tests/**.cs]
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CS1591.severity = none
+
+# Showcase exception for demo code flexibility
+[samples/**.cs]
+dotnet_diagnostic.CS1591.severity = none
+
+# Benchmark exception
+[benchmarks/**.cs]
+dotnet_diagnostic.CS1591.severity = none

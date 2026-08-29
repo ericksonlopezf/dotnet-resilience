@@ -1,0 +1,9 @@
+<!-- Copyright © Erickson Lopez. MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.Abstractions\EricksonLopez.Resilience.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience\EricksonLopez.Resilience.csproj" />
+  </ItemGroup>
+
+</Project>
