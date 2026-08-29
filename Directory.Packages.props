@@ -13,8 +13,8 @@
     <PackageVersion Include="EricksonLopez.Mediator" Version="1.0.0" />
 
     <!-- Execution Engine -->
-    <PackageVersion Include="Polly.Core" Version="8.5.2" />
-    <PackageVersion Include="Polly.RateLimiting" Version="8.5.2" />
+    <PackageVersion Include="Polly.Core" Version="8.7.0" />
+    <PackageVersion Include="Polly.RateLimiting" Version="8.7.0" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="10.0.11" />
 
     <!-- Microsoft Extensions & OpenTelemetry -->
