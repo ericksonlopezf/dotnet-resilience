@@ -1,0 +1,21 @@
+<!-- Copyright © Erickson Lopez. MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>OpenTelemetry metrics and distributed tracing instrumentation for EricksonLopez.Resilience.</Description>
+    <PackageTags>$(CommonPackageTags);opentelemetry;observability;metrics;tracing;distributed-tracing;telemetry</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Resilience.Abstractions\EricksonLopez.Resilience.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry.Api" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EricksonLopez.Resilience.OpenTelemetry.Tests" />
+  </ItemGroup>
+
+</Project>

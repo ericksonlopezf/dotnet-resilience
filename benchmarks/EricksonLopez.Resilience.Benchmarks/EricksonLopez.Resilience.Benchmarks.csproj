@@ -1,0 +1,25 @@
+<!-- Copyright © Erickson Lopez. MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IsAotCompatible>false</IsAotCompatible>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <NoWarn>$(NoWarn);CS1718;CA1859;IL2026;IL3050</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.Abstractions\EricksonLopez.Resilience.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience\EricksonLopez.Resilience.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.Polly\EricksonLopez.Resilience.Polly.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.DependencyInjection\EricksonLopez.Resilience.DependencyInjection.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Polly.Core" />
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,28 @@
+<!-- Copyright © Erickson Lopez. MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.Abstractions\EricksonLopez.Resilience.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience\EricksonLopez.Resilience.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.Polly\EricksonLopez.Resilience.Polly.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.DependencyInjection\EricksonLopez.Resilience.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Resilience.AspNetCore\EricksonLopez.Resilience.AspNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Update="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+<!-- Copyright © Erickson Lopez. MIT License. -->
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EricksonLopez.Resilience.Abstractions/EricksonLopez.Resilience.Abstractions.csproj" />
+    <Project Path="src/EricksonLopez.Resilience/EricksonLopez.Resilience.csproj" />
+    <Project Path="src/EricksonLopez.Resilience.Polly/EricksonLopez.Resilience.Polly.csproj" />
+    <Project Path="src/EricksonLopez.Resilience.DependencyInjection/EricksonLopez.Resilience.DependencyInjection.csproj" />
+    <Project Path="src/EricksonLopez.Resilience.Mediator/EricksonLopez.Resilience.Mediator.csproj" />
+    <Project Path="src/EricksonLopez.Resilience.OpenTelemetry/EricksonLopez.Resilience.OpenTelemetry.csproj" />
+    <Project Path="src/EricksonLopez.Resilience.AspNetCore/EricksonLopez.Resilience.AspNetCore.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EricksonLopez.Resilience.Abstractions.Tests/EricksonLopez.Resilience.Abstractions.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Resilience.Tests/EricksonLopez.Resilience.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Resilience.Polly.Tests/EricksonLopez.Resilience.Polly.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Resilience.DependencyInjection.Tests/EricksonLopez.Resilience.DependencyInjection.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Resilience.Mediator.Tests/EricksonLopez.Resilience.Mediator.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Resilience.OpenTelemetry.Tests/EricksonLopez.Resilience.OpenTelemetry.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Resilience.AspNetCore.Tests/EricksonLopez.Resilience.AspNetCore.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Resilience.IntegrationTests/EricksonLopez.Resilience.IntegrationTests.csproj" />
+    <Project Path="tests/EricksonLopez.Resilience.ArchitectureTests/EricksonLopez.Resilience.ArchitectureTests.csproj" />
+    <Project Path="tests/EricksonLopez.Resilience.AotSmokeTest/EricksonLopez.Resilience.AotSmokeTest.csproj" />
+  </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/EricksonLopez.Resilience.Benchmarks/EricksonLopez.Resilience.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Showcase/EricksonLopez.Resilience.Showcase.csproj" />
+  </Folder>
+</Solution>
