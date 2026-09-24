@@ -1,6 +1,5 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
-using EricksonLopez.Resilience.Builder;
 
 namespace EricksonLopez.Resilience.DependencyInjection;
 
@@ -12,9 +11,15 @@ internal sealed class NamedPolicyRegistration
     public NamedPolicyRegistration(string name, Action<IResiliencePipelineBuilder> configure)
     {
         Name = name;
+        Configure = (builder, _) => configure(builder);
+    }
+
+    public NamedPolicyRegistration(string name, Action<IResiliencePipelineBuilder, IServiceProvider> configure)
+    {
+        Name = name;
         Configure = configure;
     }
 
     public string Name { get; }
-    public Action<IResiliencePipelineBuilder> Configure { get; }
+    public Action<IResiliencePipelineBuilder, IServiceProvider> Configure { get; }
 }

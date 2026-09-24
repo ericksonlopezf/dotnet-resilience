@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Description>Core resilience abstractions, contracts, context, strategy options, and classification models for the EricksonLopez ecosystem.</Description>
-    <PackageTags>$(CommonPackageTags);abstractions;contracts;retry;circuit-breaker;timeout;rate-limiting;fallback;hedging</PackageTags>
+    <PackageTags>$(CommonPackageTags);abstractions;contracts;clean-architecture;resilience-pipeline;retry;circuit-breaker;timeout;rate-limiting;fallback;hedging</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

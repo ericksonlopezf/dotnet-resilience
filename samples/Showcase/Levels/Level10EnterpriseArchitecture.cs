@@ -17,12 +17,16 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 10 — Enterprise Architecture: Mission-Critical End-to-End Clean Architecture Reference Solution.
+/// Provides enterprise architecture demonstrations illustrating a mission-critical end-to-end clean architecture solution.
 /// </summary>
 public static class Level10EnterpriseArchitecture
 {
     private const string PolicyName = "enterprise-checkout-policy";
 
+    /// <summary>
+    /// Executes the enterprise architecture resilience demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunAsync()
     {
         Console.WriteLine("================================================================================");
@@ -98,25 +102,67 @@ public static class Level10EnterpriseArchitecture
         Console.WriteLine("--------------------------------------------------------------------------------\n");
     }
 
+    /// <summary>
+    /// Represents a zero-allocation continuation struct compatible with Native AOT.
+    /// </summary>
+    /// <typeparam name="T">The type of value returned by the continuation.</typeparam>
     public readonly struct StructContinuation<T> : INext<T>
     {
         private readonly Func<ValueTask<T>> _fn;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StructContinuation{T}"/> struct.
+        /// </summary>
+        /// <param name="fn">The asynchronous callback delegate to invoke.</param>
         public StructContinuation(Func<ValueTask<T>> fn) => _fn = fn;
+
+        /// <inheritdoc/>
         public ValueTask<T> InvokeAsync() => _fn();
     }
 
+    /// <summary>
+    /// Represents an enterprise checkout command implementing <see cref="IResilientRequest"/>.
+    /// </summary>
+    /// <param name="CustomerId">The unique customer identifier.</param>
+    /// <param name="TotalAmount">The total checkout amount.</param>
+    /// <param name="IdempotencyKey">The unique idempotency key.</param>
+    /// <param name="TenantId">The tenant identifier.</param>
     public sealed record CheckoutOrderCommand(string CustomerId, decimal TotalAmount, string IdempotencyKey, string TenantId)
         : ICommand<Result<CheckoutReceipt>>, IResilientRequest
     {
+        /// <inheritdoc/>
         public string ResiliencePolicy => PolicyName;
     }
 
+    /// <summary>
+    /// Represents a receipt generated upon successful checkout processing.
+    /// </summary>
+    /// <param name="OrderId">The unique identifier of the placed order.</param>
+    /// <param name="PaymentRef">The payment reference string.</param>
+    /// <param name="AmountPaid">The monetary amount paid.</param>
+    /// <param name="Timestamp">The UTC timestamp when checkout was processed.</param>
     public sealed record CheckoutReceipt(Guid OrderId, string PaymentRef, decimal AmountPaid, DateTime Timestamp);
 
+    /// <summary>
+    /// Provides a command handler that processes enterprise checkout operations.
+    /// </summary>
     public sealed class CheckoutOrderCommandHandler
     {
         private int _attempts;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CheckoutOrderCommandHandler"/> class.
+        /// </summary>
+        public CheckoutOrderCommandHandler()
+        {
+        }
+
+        /// <summary>
+        /// Handles the specified checkout order command.
+        /// </summary>
+        /// <param name="request">The checkout command to process.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
+        /// <returns>A value task representing the asynchronous operation. The task result contains the checkout receipt on success, or a domain error on failure.</returns>
         public async ValueTask<Result<CheckoutReceipt>> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)
         {
             _attempts++;

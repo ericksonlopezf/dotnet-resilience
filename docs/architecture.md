@@ -34,7 +34,7 @@ flowchart TD
     subgraph Infrastructure ["Infrastructure Layer (EricksonLopez.Resilience.Polly - L4)"]
         PollyAdapter[PollyResiliencePipeline]
         PollyTranslator[PollyPipelineBuilderTranslator]
-        PollyEngine[Polly v8.5+ Core Engine]
+        PollyEngine[Polly v8 Core Engine]
     end
 
     API --> DelegatingHandler
@@ -133,4 +133,88 @@ sequenceDiagram
 1. **Pure Asynchrony**: All execution APIs return `ValueTask` or `ValueTask<TResult>`. Synchronous blocking APIs (`.Execute()`) are strictly forbidden to eliminate threadpool starvation risks (ADR-006).
 2. **Deterministic Context Lifecycle**: `ResilienceContext` is an immutable-friendly value carrier. Modifying properties (`WithOperationName`, `WithCorrelationId`, `WithTenantId`, `WithAttemptNumber`) returns a clean updated instance.
 3. **Domain Error vs Infrastructure Error Segregation**: Business validation failures (`ErrorType.Validation`), security rejections (`Unauthorized`, `Forbidden`), and domain conflicts are never retried. Only transient infrastructure faults (`ErrorType.Unavailable`, `Infrastructure`, transient exceptions) participate in retry loops.
-4. **Zero Runtime Reflection**: All pipeline registrations, strategy translations, and configuration bindings use static factories or source-generated binders to ensure 100% Native AOT and trimming safety (ADR-005, ADR-009).
+4. **Zero Runtime Reflection**: All pipeline registrations, strategy translations, and configuration bindings use static factories or reflection-free static binders (`ResilienceConfigurationExtensions`) to ensure 100% Native AOT and trimming safety (ADR-005, ADR-009).
+
+---
+
+## 5. Circuit Breaker State Machine
+
+The Circuit Breaker transitions deterministically through four lifecycle states defined in `CircuitBreakerState`:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Closed: Initialization
+
+    Closed --> Open: FailureRatio >= Threshold (MinimumThroughput met)
+    note right of Closed: Normal operation. All calls pass through.
+
+    Open --> HalfOpen: BreakDuration expires
+    note right of Open: Fail-fast. Throws CircuitBrokenException immediately.
+
+    HalfOpen --> Closed: Trial executions succeed
+    HalfOpen --> Open: Trial execution fails
+
+    Closed --> Isolated: Manual administrative isolation
+    Open --> Isolated: Manual administrative isolation
+    HalfOpen --> Isolated: Manual administrative isolation
+    Isolated --> Closed: Manual reset / health check recovery
+    note right of Isolated: Circuit forced permanently open for emergency mitigation.
+```
+
+---
+
+## 6. Error Classification & Decision Flow
+
+The error handling architecture decouples business results from low-level network exceptions via `IResultRetryClassifier` and `RetryabilityDecision`:
+
+```mermaid
+flowchart TD
+    Start([Execution Outcome]) --> CheckType{Is Exception or Result?}
+
+    CheckType -- Exception --> ExClassifier[TransientExceptionClassifier]
+    ExClassifier --> ExTransient{Is Transient Exception?}
+    ExTransient -- Yes (Socket, Timeout, 503) --> DecisionRetry[RetryabilityDecision.Retry]
+    ExTransient -- No (Argument, Validation, Security) --> DecisionNoRetry[RetryabilityDecision.DoNotRetry]
+
+    CheckType -- Result<T> --> ResultClassifier[ResultRetryClassifier]
+    ResultClassifier --> IsSuccess{Result.IsSuccess?}
+    IsSuccess -- Yes --> SuccessOutcome([Return Successful Result])
+    IsSuccess -- No --> ErrClassifier[Evaluate Error.ErrorType & Retryability]
+    ErrClassifier --> ErrTransient{Is Unavailable or Infrastructure?}
+    ErrTransient -- Yes --> DecisionRetry
+    ErrTransient -- No (Validation, Domain, Conflict) --> DecisionNoRetry
+
+    DecisionRetry --> CheckAttempts{AttemptCount < MaxRetries?}
+    CheckAttempts -- Yes --> ComputeBackoff[Calculate Backoff Delay + Jitter]
+    ComputeBackoff --> NextAttempt([Execute Next Attempt])
+    CheckAttempts -- No --> Exhausted([Retry Budget Exhausted])
+
+    DecisionNoRetry --> StopRetry([Propagate Failure Immediately])
+```
+
+---
+
+## 7. End-to-End Processing & Dispatch Flow
+
+From client presentation request to target execution and telemetry recording:
+
+```mermaid
+flowchart TD
+    ClientReq[Client / HTTP / Mediator Request] --> ContextInit[Create ResilienceContext with Operation & Tenant]
+    ContextInit --> RegLookup[Resolve IResiliencePipeline from IResiliencePipelineRegistry]
+    RegLookup --> StrategyStack[Execute via Strategy Stack]
+
+    subgraph StrategyStack ["Compiled Strategy Stack"]
+        RL[1. Rate Limiter: SlidingWindow / TokenBucket / Concurrency]
+        TO[2. SLA Timeout]
+        CB[3. Circuit Breaker: Closed / HalfOpen]
+        RetryPolicy[4. Jittered Retry Loop]
+        Hedging[5. Speculative Hedging / Parallel Replicas]
+        FallbackStrat[6. Fallback Handler: Contingency Data]
+    end
+
+    StrategyStack --> TargetResource[(Downstream API / Database / Microservice)]
+    TargetResource --> Telemetry[Record ResilienceMeter & ResilienceActivitySource Metrics/Spans]
+    Telemetry --> ClientResp[Return Typed Result<T> / Outcome to Caller]
+```
+

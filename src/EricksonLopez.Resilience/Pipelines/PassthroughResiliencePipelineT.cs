@@ -15,6 +15,10 @@ public sealed class PassthroughResiliencePipeline<TResult> : IResiliencePipeline
     /// Initializes a new instance of the <see cref="PassthroughResiliencePipeline{TResult}"/> class.
     /// </summary>
     /// <param name="name">The name of the pipeline.</param>
+    /// <remarks>
+    /// For unit testing, construct a named instance directly: <c>new PassthroughResiliencePipeline&lt;TResult&gt;("test")</c>.
+    /// For untyped pipelines, use <see cref="PassthroughResiliencePipeline.Instance"/> instead.
+    /// </remarks>
     public PassthroughResiliencePipeline(string name)
     {
         Name = name;
@@ -36,7 +40,10 @@ public sealed class PassthroughResiliencePipeline<TResult> : IResiliencePipeline
 
         var token = cancellationToken != default ? cancellationToken : context.CancellationToken;
         token.ThrowIfCancellationRequested();
-        return operation(context);
+        var effectiveContext = cancellationToken != default && cancellationToken != context.CancellationToken
+            ? context.WithCancellationToken(cancellationToken)
+            : context;
+        return operation(effectiveContext);
     }
 
     /// <inheritdoc/>

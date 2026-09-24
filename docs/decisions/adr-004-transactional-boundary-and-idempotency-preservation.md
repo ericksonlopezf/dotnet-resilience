@@ -1,7 +1,10 @@
 # ADR-004: Transactional Boundaries and Idempotency Key Preservation
 
 ## Status
-**Accepted**
+Accepted
+
+## Date
+2026-09-04
 
 ## Context
 When an operation fails due to transient database deadlocks, optimistic concurrency conflicts, or network drops, executing retries without clean boundary management leads to data corruption:

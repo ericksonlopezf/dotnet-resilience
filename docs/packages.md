@@ -40,8 +40,10 @@ All production and test dependency versions are centrally managed in [`Directory
 
 | Package | Pinned Version | Used By |
 |---|---|---|
-| `Polly.Core` | `8.5.2` | `EricksonLopez.Resilience.Polly` (L4 only) |
-| `Polly.RateLimiting` | `8.5.2` | `EricksonLopez.Resilience.Polly` (L4 only) |
+| `EricksonLopez.Result` | `2.0.0` | `EricksonLopez.Resilience` (Core) |
+| `EricksonLopez.Mediator` | `1.0.0` | `EricksonLopez.Resilience.Mediator` |
+| `Polly.Core` | `8.7.0` | `EricksonLopez.Resilience.Polly` (L4 only) |
+| `Polly.RateLimiting` | `8.7.0` | `EricksonLopez.Resilience.Polly` (L4 only) |
 | `System.Threading.RateLimiting` | `10.0.11` | `EricksonLopez.Resilience.Abstractions` |
 | `Microsoft.Extensions.DependencyInjection.Abstractions` | `10.0.11` | DI, Mediator |
 | `Microsoft.Extensions.DependencyInjection` | `10.0.11` | DI |
@@ -50,21 +52,23 @@ All production and test dependency versions are centrally managed in [`Directory
 | `Microsoft.Extensions.Options` | `10.0.11` | DI |
 | `Microsoft.Extensions.Logging.Abstractions` | `10.0.11` | DI |
 | `Microsoft.Extensions.Http` | `10.0.11` | AspNetCore |
-| `Microsoft.AspNetCore.Http.Abstractions` | `2.3.0` | AspNetCore |
-| `OpenTelemetry.Api` | `1.11.2` | OpenTelemetry |
+| `Microsoft.AspNetCore.Http.Abstractions` | `2.3.12` | AspNetCore |
+| `OpenTelemetry.Api` | `1.18.0` | OpenTelemetry |
+| `Microsoft.SourceLink.GitHub` | `8.0.0` | All production packages |
 
 ### Test & Benchmark Dependencies
 
 | Package | Pinned Version | Used By |
 |---|---|---|
-| `Microsoft.NET.Test.Sdk` | `17.14.1` | All test projects |
+| `Microsoft.NET.Test.Sdk` | `18.9.0` | All test projects |
 | `xunit` | `2.9.3` | All test projects |
-| `xunit.runner.visualstudio` | `3.0.2` | All test projects |
+| `xunit.runner.visualstudio` | `4.0.0` | All test projects |
 | `AwesomeAssertions` | `9.6.0` | All test projects |
-| `NSubstitute` | `5.3.0` | Unit test projects |
+| `NSubstitute` | `6.2.0` | Unit test projects |
 | `NetArchTest.Rules` | `1.3.2` | Architecture tests |
-| `coverlet.collector` | `6.0.4` | All test projects (coverage) |
+| `coverlet.collector` | `10.0.1` | All test projects (coverage) |
 | `BenchmarkDotNet` | `0.15.8` | Benchmarks project |
+| `FsCheck.Xunit` | `3.0.0` | Property-based testing |
 
 ---
 
@@ -103,7 +107,8 @@ To run the full benchmark suite:
 dotnet run -c Release --project benchmarks/EricksonLopez.Resilience.Benchmarks/EricksonLopez.Resilience.Benchmarks.csproj
 ```
 
-Baseline results are stored in `benchmarks/results/` and automatically updated by the weekly benchmarks workflow (`weekly-benchmarks.yml`). The benchmark regression gate (`benchmark-regression-gate.yml`) compares PR changes against the stored baseline and fails if regression exceeds 10%.
+Baseline results are stored in `benchmarks/results/` and automatically updated by the weekly benchmarks workflow (`weekly-benchmarks.yml`). The benchmark regression gate (`benchmark-regression-gate.yml`) compares PR changes against the stored baseline and fails if latency regression exceeds 5%.
+
 
 ---
 

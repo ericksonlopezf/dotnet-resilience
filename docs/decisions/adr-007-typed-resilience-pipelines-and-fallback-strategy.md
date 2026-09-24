@@ -1,7 +1,10 @@
 # ADR-007: Typed Resilience Pipelines and Fallback Strategy
 
 ## Status
-**Accepted**
+Accepted
+
+## Date
+2026-09-04
 
 ## Context
 Non-generic resilience pipelines (`IResiliencePipeline`) handle untyped operations and return arbitrary values via generic `ExecuteAsync<TResult>` methods. However, specific resilience patterns—most notably **Fallback** (returning a cached value or degraded response upon failure) and **Typed Hedging**—require compile-time knowledge of the returned result type `TResult` to:

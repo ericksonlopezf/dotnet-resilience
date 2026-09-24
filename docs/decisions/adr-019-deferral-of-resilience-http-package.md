@@ -1,7 +1,10 @@
 # ADR-019: Deferral of EricksonLopez.Resilience.Http Package (L2)
 
 ## Status
-**Deferred** — Planned for v1.3.0 pending adoption signals
+Deferred — Planned for v1.3.0 pending adoption signals
+
+## Date
+2026-09-04
 
 ## Context
 `ResilienceDelegatingHandler` and `HttpClientResilienceExtensions` (including `AddStandardResilienceHandler()`) currently live in `EricksonLopez.Resilience.AspNetCore`. However, these components only require `Microsoft.Extensions.Http`, not the full ASP.NET Core stack. This means that Worker Services, Console applications, and Azure Functions cannot use HTTP resilience integration without taking a dependency on ASP.NET Core.

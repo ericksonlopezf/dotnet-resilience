@@ -1590,6 +1590,26 @@ public sealed class PollyPipelineBuilderTranslatorTests
         defTypedOpt.Name.Should().Be("Hedging");
     }
 
+    [Fact]
+    public void AddRetry_WithZeroMaxRetryAttempts_DoesNotAddStrategy()
+    {
+        var addRetryMethod = typeof(PollyPipelineBuilderTranslator).GetMethod("AddRetry", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+        var untypedBuilder = new global::Polly.ResiliencePipelineBuilder();
+        addRetryMethod.Invoke(null, new object[] { untypedBuilder, new RetryStrategyOptions { MaxRetryAttempts = 0 } });
+
+        var baseType = untypedBuilder.GetType().BaseType!;
+        var entriesField = baseType.GetField("_entries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        var entries = (System.Collections.IList)entriesField.GetValue(untypedBuilder)!;
+        entries.Count.Should().Be(0);
+
+        var addRetryTypedMethod = typeof(PollyPipelineBuilderTranslator).GetMethod("AddRetryTyped", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!.MakeGenericMethod(typeof(string));
+        var typedBuilder = new global::Polly.ResiliencePipelineBuilder<string>();
+        addRetryTypedMethod.Invoke(null, new object[] { typedBuilder, new RetryStrategyOptions { MaxRetryAttempts = 0 } });
+
+        var typedEntries = (System.Collections.IList)entriesField.GetValue(typedBuilder)!;
+        typedEntries.Count.Should().Be(0);
+    }
+
     private static global::Polly.Retry.RetryStrategyOptions GetFirstRetryOptions(global::Polly.ResiliencePipelineBuilder builder)
     {
         var baseType = builder.GetType().BaseType!;

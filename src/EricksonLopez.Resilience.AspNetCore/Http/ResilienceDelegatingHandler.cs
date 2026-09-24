@@ -35,6 +35,15 @@ public sealed class ResilienceDelegatingHandler : DelegatingHandler
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        if (request.Content != null)
+        {
+#if NET9_0_OR_GREATER
+            await request.Content.LoadIntoBufferAsync(cancellationToken).ConfigureAwait(false);
+#else
+            await request.Content.LoadIntoBufferAsync().ConfigureAwait(false);
+#endif
+        }
+
         var context = new ResilienceContext(
             _policyName,
             operationName: $"HTTP {request.Method} {request.RequestUri?.Host}",

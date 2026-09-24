@@ -1,7 +1,10 @@
 # ADR-001: Polly v8 Decoupling as L4 Infrastructure Detail
 
 ## Status
-**Accepted**
+Accepted
+
+## Date
+2026-09-04
 
 ## Context
 In modern distributed systems, resilience is essential. However, directly referencing third-party libraries such as Polly across application handlers, domain models, and presentation controllers introduces tight coupling:

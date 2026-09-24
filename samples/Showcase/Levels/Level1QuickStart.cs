@@ -10,12 +10,16 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 1 — Quick Start: Minimal DI setup and first functional use of IResilienceExecutor.
+/// Provides quick-start demonstrations illustrating minimal dependency injection configuration and initial resilience execution.
 /// </summary>
 public static class Level1QuickStart
 {
     private const string PolicyName = "quickstart-policy";
 
+    /// <summary>
+    /// Executes the quick-start resilience demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunAsync()
     {
         Console.WriteLine("================================================================================");

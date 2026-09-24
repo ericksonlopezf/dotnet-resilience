@@ -110,6 +110,12 @@ public sealed class ResilienceContextTests
 
         context.TryGetProperty<int>("non_existing", out var defaultVal).Should().BeFalse();
         defaultVal.Should().Be(0);
+
+        context.Properties.Should().NotBeNull();
+        context.Properties.Count.Should().Be(2);
+        context.Properties.Should().ContainKey("custom_key");
+        context.Properties["custom_key"].Should().Be("custom_value");
+        context.Properties["guid_key"].Should().Be(guid);
     }
 
     [Fact]
@@ -319,5 +325,85 @@ public sealed class ResilienceContextTests
         next.AttemptNumber.Should().Be(10);
         next.TryGetProperty<double>("p4", out var p4Val).Should().BeTrue();
         p4Val.Should().Be(9.99);
+    }
+
+    [Fact]
+    public void WithCancellationToken_PreservesAllExistingStateAndProperties()
+    {
+        // Arrange
+        using var initialCts = new CancellationTokenSource();
+        using var newCts = new CancellationTokenSource();
+        var original = new ResilienceContext("pol", "op", "corr", "tenant", initialCts.Token)
+        {
+            AttemptNumber = 5
+        };
+        original.SetProperty("p1", "val1");
+        original.SetProperty("p2", 100);
+
+        // Act
+        var next = original.WithCancellationToken(newCts.Token);
+
+        // Assert
+        next.Should().NotBeSameAs(original);
+        next.PolicyName.Should().Be("pol");
+        next.OperationName.Should().Be("op");
+        next.CorrelationId.Should().Be("corr");
+        next.TenantId.Should().Be("tenant");
+        next.CancellationToken.Should().Be(newCts.Token);
+        next.AttemptNumber.Should().Be(5);
+        next.Properties.Count.Should().Be(2);
+        next.TryGetProperty<string>("p1", out var v1).Should().BeTrue();
+        v1.Should().Be("val1");
+        next.TryGetProperty<int>("p2", out var v2).Should().BeTrue();
+        v2.Should().Be(100);
+    }
+
+    [Fact]
+    public void CopyPropertiesTo_WithNullDestination_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var context = ResilienceContext.Create("test-policy");
+
+        // Act & Assert
+        var act = () => context.CopyPropertiesTo(null!);
+        act.Should().Throw<ArgumentNullException>().WithParameterName("destination");
+    }
+
+    [Fact]
+    public void CopyPropertiesTo_WhenPropertiesAreNullOrEmpty_DoesNotThrowAndPreservesDestination()
+    {
+        // Arrange
+        var sourceWithoutProperties = ResilienceContext.Create("source-policy");
+        var destination = ResilienceContext.Create("dest-policy");
+        destination.SetProperty("existing_key", "existing_value");
+
+        // Act
+        var act = () => sourceWithoutProperties.CopyPropertiesTo(destination);
+
+        // Assert
+        act.Should().NotThrow();
+        destination.Properties.Count.Should().Be(1);
+        destination.Properties["existing_key"].Should().Be("existing_value");
+    }
+
+    [Fact]
+    public void CopyPropertiesTo_WhenPropertiesExist_CopiesAllPropertiesToDestination()
+    {
+        // Arrange
+        var source = ResilienceContext.Create("source-policy");
+        source.SetProperty("source_key1", "val1");
+        source.SetProperty("source_key2", 42);
+
+        var destination = ResilienceContext.Create("dest-policy");
+        destination.SetProperty("dest_key", true);
+
+        // Act
+        source.CopyPropertiesTo(destination);
+
+        // Assert
+        destination.Properties.Count.Should().Be(3);
+        destination.Properties["source_key1"].Should().Be("val1");
+        destination.Properties["source_key2"].Should().Be(42);
+        destination.Properties["dest_key"].Should().Be(true);
     }
 }

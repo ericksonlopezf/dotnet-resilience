@@ -61,7 +61,7 @@ public sealed class ServiceCollectionExtensionsTests
         services.AddResiliencePolicy<FastTimeoutPolicy>();
 
         // Assert - verify both AddEricksonLopezResilience and singleton registration
-        services.Should().Contain(sd => sd.ServiceType == typeof(IResiliencePolicy) && sd.ImplementationInstance is FastTimeoutPolicy);
+        services.Should().Contain(sd => sd.ServiceType == typeof(IResiliencePolicy) && sd.ImplementationType == typeof(FastTimeoutPolicy));
         services.Should().Contain(sd => sd.ServiceType == typeof(ResiliencePolicyRegistry));
 
         var sp = services.BuildServiceProvider();
@@ -76,7 +76,7 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddResiliencePolicy("direct-named", b => { });
+        services.AddResiliencePolicy("direct-named", (Action<IResiliencePipelineBuilder>)(b => { }));
 
         // Assert - verify both AddEricksonLopezResilience and named policy registration
         services.Should().Contain(sd => sd.ServiceType == typeof(NamedPolicyRegistration));
@@ -246,7 +246,7 @@ public sealed class ServiceCollectionExtensionsTests
         IServiceCollection? services = null;
 
         // Act
-        Action act = () => services!.AddResiliencePolicy("dynamic-policy", b => { });
+        Action act = () => services!.AddResiliencePolicy("dynamic-policy", (Action<IResiliencePipelineBuilder>)(b => { }));
 
         // Assert
         act.Should().Throw<ArgumentNullException>();
@@ -262,7 +262,7 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        Action act = () => services.AddResiliencePolicy(policyName!, b => { });
+        Action act = () => services.AddResiliencePolicy(policyName!, (Action<IResiliencePipelineBuilder>)(b => { }));
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -275,7 +275,7 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        Action act = () => services.AddResiliencePolicy("dynamic-policy", null!);
+        Action act = () => services.AddResiliencePolicy("dynamic-policy", (Action<IResiliencePipelineBuilder>)null!);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();
@@ -306,6 +306,78 @@ public sealed class ServiceCollectionExtensionsTests
         result.Should().Be("Done");
 
         // Verify named.Configure(builder) actually configured the timeout
+        Func<Task> slowAct = async () =>
+        {
+            await pipeline.ExecuteAsync(async ct =>
+            {
+                await Task.Delay(150, ct);
+                return "Slow";
+            });
+        };
+        await slowAct.Should().ThrowAsync<ResilienceTimeoutException>();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void AddResiliencePolicy_WithServiceProviderAction_WhenPolicyNameIsInvalid_ThrowsArgumentException(string? policyName)
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        Action act = () => services.AddResiliencePolicy(policyName!, (Action<IResiliencePipelineBuilder, IServiceProvider>)((b, sp) => { }));
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void AddResiliencePolicy_WithServiceProviderAction_WhenConfigureIsNull_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        Action act = () => services.AddResiliencePolicy("dynamic-policy", (Action<IResiliencePipelineBuilder, IServiceProvider>)null!);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task AddResiliencePolicy_WithServiceProviderAction_CompilesAndRegistersInRegistryWithServiceProviderResolution()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddSingleton("injected-metadata");
+
+        string? capturedValue = null;
+
+        // Act
+        var returnedServices = services.AddResiliencePolicy("sp-action-policy", (builder, sp) =>
+        {
+            capturedValue = sp.GetRequiredService<string>();
+            builder.AddTimeout(opt => opt.Timeout = TimeSpan.FromMilliseconds(20));
+        });
+
+        // Assert
+        returnedServices.Should().BeSameAs(services);
+        services.Should().Contain(sd => sd.ServiceType == typeof(NamedPolicyRegistration));
+        services.Should().Contain(sd => sd.ServiceType == typeof(ResiliencePolicyRegistry));
+
+        var provider = services.BuildServiceProvider();
+        var registry = provider.GetRequiredService<IResiliencePipelineRegistry>();
+
+        var pipeline = registry.GetPipeline("sp-action-policy");
+        pipeline.Should().NotBeNull();
+        (pipeline as PollyResiliencePipeline)?.Name.Should().Be("sp-action-policy");
+        capturedValue.Should().Be("injected-metadata");
+
+        var result = await pipeline.ExecuteAsync(ct => ValueTask.FromResult("Done"));
+        result.Should().Be("Done");
+
         Func<Task> slowAct = async () =>
         {
             await pipeline.ExecuteAsync(async ct =>

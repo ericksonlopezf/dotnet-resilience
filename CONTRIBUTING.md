@@ -136,11 +136,14 @@ Before submitting a Pull Request, please ensure:
 - [ ] Solution compiles cleanly (`dotnet build EricksonLopez.Resilience.slnx -c Release`) with 0 warnings.
 - [ ] All automated tests pass (`dotnet test EricksonLopez.Resilience.slnx -c Release`).
 - [ ] Architecture tests pass (`EricksonLopez.Resilience.ArchitectureTests`).
+- [ ] Native AOT smoke test compiles and passes (`dotnet publish tests/EricksonLopez.Resilience.AotSmokeTest/EricksonLopez.Resilience.AotSmokeTest.csproj -c Release -r linux-x64 --self-contained`).
 - [ ] Compliance script passes with 0 violations (`pwsh -File scripts/verify-compliance.ps1`).
 - [ ] Mutation score maintained ≥ 95% break threshold (100% target) for affected packages.
+- [ ] Benchmarks confirmed no regressions (latency regression $\le 5\%$ vs baseline).
 - [ ] New public APIs include XML documentation comments.
 - [ ] Showcase reference examples are updated if public API changed.
 - [ ] Commit history is clean and follows conventional commit messages.
+
 
 ---
 

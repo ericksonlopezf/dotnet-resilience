@@ -1,18 +1,20 @@
 # EricksonLopez.Resilience
 
-High-performance, Clean Architecture resilience framework, fault-tolerance ecosystem, and telemetry pipeline for modern .NET.
+Enterprise-grade Clean Architecture resilience & fault-tolerance framework for modern .NET (8/9/10). 100% Native AOT, Polly v8 isolation, Result (ROP) error classification, and OpenTelemetry observability.
 
 [![CI](https://img.shields.io/github/actions/workflow/status/ericksonlopezf/dotnet-resilience/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/ericksonlopezf/dotnet-resilience/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/ericksonlopezf/dotnet-resilience?style=for-the-badge&logo=codecov&logoColor=white)](https://codecov.io/gh/ericksonlopezf/dotnet-resilience)
 [![Quality Gate](https://img.shields.io/sonar/quality_gate/ericksonlopezf_dotnet-resilience?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/new_code?id=ericksonlopezf_dotnet-resilience)
-[![Mutation Score](https://img.shields.io/badge/Mutation_Score-100%25-brightgreen?style=for-the-badge&logo=stryker&logoColor=white)](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/ci-cd-quality.md)
+[![Mutation Score](https://img.shields.io/badge/Mutation_Score-%E2%89%A595%25-brightgreen?style=for-the-badge&logo=stryker&logoColor=white)](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/ci-cd-quality.md)
 [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience?style=for-the-badge&logo=nuget&logoColor=white&color=512BD4)](https://www.nuget.org/packages/EricksonLopez.Resilience)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/EricksonLopez.Resilience?style=for-the-badge&logo=nuget&logoColor=white&color=004880)](https://www.nuget.org/packages/EricksonLopez.Resilience)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/LICENSE)
 [![.NET](https://img.shields.io/badge/.NET_8_%7C_9_%7C_10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
 [![NativeAOT](https://img.shields.io/badge/NativeAOT-Compatible-brightgreen?style=for-the-badge)](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot)
 
-**EricksonLopez.Resilience** is an enterprise-grade architectural resilience and fault-tolerance framework engineered for .NET 8, .NET 9, and .NET 10. Built strictly upon Clean Architecture and Domain-Driven Design (DDD) principles, it decouples application and domain layers from third-party infrastructure engines (Polly v8+), provides deep native integration with `EricksonLopez.Result`, enforces transactional and concurrency safety across retry cycles, and guarantees 100% Native AOT trimming compliance with zero-allocation telemetry.
+---
+
+**EricksonLopez.Resilience** is an enterprise-grade architectural resilience and fault-tolerance framework engineered for modern .NET (`.NET 8`, `.NET 9`, `.NET 10`). Built strictly upon Clean Architecture and Domain-Driven Design (DDD) principles, it decouples application and domain layers from third-party infrastructure engines (Polly v8+), provides deep native integration with `EricksonLopez.Result`, enforces transactional and concurrency safety across retry cycles, and guarantees 100% Native AOT trimming compliance with zero-allocation telemetry.
 
 ---
 
@@ -27,6 +29,9 @@ High-performance, Clean Architecture resilience framework, fault-tolerance ecosy
   - [Interactive Showcase (Levels 00 to 10)](#-step-by-step-interactive-showcase-levels-00-to-10)
   - [Technical Reference & Architecture Guides](#-technical-reference--architecture-guides)
 - [Installation](#-installation)
+  - [1. Core Framework & Dependency Injection (Recommended)](#1-core-framework--dependency-injection-recommended)
+  - [2. Optional Integration & Presentation Packages](#2-optional-integration--presentation-packages)
+  - [3. Foundation Package (Domain & Application Layers)](#3-foundation-package-domain--application-layers)
 - [Quick Start](#-quick-start)
   - [1. Service Registration & Policy Definition](#1-service-registration--policy-definition)
   - [2. Executing Operations in Application Services](#2-executing-operations-in-application-services)
@@ -44,23 +49,25 @@ High-performance, Clean Architecture resilience framework, fault-tolerance ecosy
   - [HttpClient Delegating Handlers](#httpclient-delegating-handlers)
   - [OpenTelemetry Metrics & Distributed Tracing](#opentelemetry-metrics--distributed-tracing)
   - [Mediator Pipeline Behavior](#mediator-pipeline-behavior)
-  - [Source-Generated Configuration Binders](#source-generated-configuration-binders)
+  - [Reflection-Free Configuration Binders](#reflection-free-configuration-binders)
 - [Testing & Quality](#-testing--quality)
   - [Zero-Overhead Unit Testing with PassthroughResiliencePipeline](#zero-overhead-unit-testing-with-passthroughresiliencepipeline)
   - [Mocking & Execution Verification](#mocking--execution-verification)
   - [Quality Gates & Mutation Testing](#quality-gates--mutation-testing)
 - [Performance Benchmarks](#-performance-benchmarks)
+  - [Primary Operations Benchmark](#primary-operations-benchmark)
 - [Compatibility & Technical Matrix](#-compatibility--technical-matrix)
   - [Target Frameworks & Native AOT Support](#target-frameworks--native-aot-support)
   - [Resilience Strategy Execution Ordering](#resilience-strategy-execution-ordering)
-- [Architecture & Design Principles](#️-architecture--design-principles)
+- [Architecture & Design Principles](#-architecture--design-principles)
   - [Clean Architecture Layer Segregation](#clean-architecture-layer-segregation)
   - [Resilience Strategy Execution Sequence](#resilience-strategy-execution-sequence)
   - [Circuit Breaker State Machine](#circuit-breaker-state-machine)
 - [Best Practices & Anti-Patterns](#-best-practices--anti-patterns)
-- [Troubleshooting & Common Pitfalls](#️-troubleshooting--common-pitfalls)
+- [Troubleshooting & Common Pitfalls](#-troubleshooting--common-pitfalls)
 - [Part of the EricksonLopez Ecosystem](#-part-of-the-ericksonlopez-ecosystem)
 - [Contributing](#-contributing)
+  - [Local Development Setup](#local-development-setup)
 - [License](#-license)
 
 ---
@@ -80,22 +87,22 @@ High-performance, Clean Architecture resilience framework, fault-tolerance ecosy
 - **First-Party L0 Abstractions & Strict L4 Infrastructure Isolation**: Domain and application layers depend solely on lightweight, first-party interfaces (`IResilienceExecutor`, `IResiliencePipeline`, `ResilienceContext`). Polly v8+ is isolated as an interchangeable infrastructure adapter (`EricksonLopez.Resilience.Polly`).
 - **Deep Result Pattern Integration (`ResultRetryClassifier`)**: Transparently inspects both exceptions and returned `Result<T>` values. Automatically classifies errors by `ErrorType` and `ErrorRetryability`, retrying transient infrastructure faults (`Unavailable`, `Infrastructure`) while short-circuiting permanent business rejections (`Validation`, `Conflict`, `Unauthorized`).
 - **Transactional Boundary & Idempotency Safety**: Provides clear architectural patterns where each retry attempt initiates a fresh Unit of Work / database transaction while preserving the original distributed idempotency key and correlation context across attempts.
-- **Pure Asynchronous ValueTask APIs**: Completely bans synchronous execution APIs (ADR-006), ensuring non-blocking execution across all pipelines and eliminating threadpool starvation risks.
-- **100% Native AOT & Trimming Compliant**: Zero reflection on critical execution paths, context pooling via `ResilienceContextPool`, struct-based Mediator continuation delegates, and source-generated configuration binders.
+- **Pure Asynchronous ValueTask APIs**: Completely bans synchronous execution APIs ([ADR-006](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/decisions/adr-006-prohibition-of-synchronous-apis.md)), ensuring non-blocking execution across all pipelines and eliminating threadpool starvation risks.
+- **100% Native AOT & Trimming Compliant**: Zero reflection on critical execution paths, engine context pooling via Polly's shared pool, struct-based Mediator continuation delegates, and AOT-safe configuration binders. Database deadlock classification uses best-effort reflection suppressed via `[UnconditionalSuppressMessage]` for optional SqlException/NpgsqlException/MySqlException detection — this path is AOT-safe and gracefully degrades if third-party ORM types are trimmed.
 
 ---
 
 ## ⚡ Key Features
 
 - 🏛️ **Clean Architecture Layering**: Strict isolation between Foundation (L0), Core Application (L2), Integrations (L3), and Infrastructure Adapters (L4).
-- 🔄 **Native Result<T> Error Classification**: Automatic evaluation of `Result<T>` error retryability alongside CLR exceptions.
+- 🔄 **Native Result<T> Error Classification**: Automatic evaluation of `Result<T>` error retryability alongside CLR exceptions via `ResultRetryClassifier`.
 - 🚀 **100% Native AOT & Trimming Compliant**: Verified with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` and automated AOT smoke testing.
 - 📊 **W3C Semantic Observability**: Native OpenTelemetry meters (`resilience.execution.duration`, `resilience.retry.attempts`) and distributed tracing spans (`Resilience.Execute`).
 - 🔒 **Transaction & Concurrency Safe**: Preserves idempotency keys across retries while reloading fresh aggregate state on optimistic concurrency conflicts.
-- 🧩 **Zero-Allocation Mediator Integration**: Struct-continuation pipeline behavior for `EricksonLopez.Mediator` (`IResilientRequest`).
+- 🧩 **Minimized-Allocation Mediator Integration**: Struct-continuation pipeline behavior for `EricksonLopez.Mediator` (`IResilientRequest`) eliminates boxing on the continuation struct.
 - ⚡ **Pure ValueTask Execution**: High-throughput async pipelines optimized for zero synchronous thread blocking.
-- 🛡️ **Comprehensive Strategy Catalog**: Retry with decorrelated exponential jitter, Circuit Breaker, Timeout, Rate Limiting (Concurrency/Window/TokenBucket), Fallback, and Speculative Hedging.
-- 🧪 **Enterprise Quality Gates**: 100% mutation test score (Stryker.NET), NetArchTest architecture rules enforcement, and automated compliance auditing.
+- 🛡️ **Comprehensive Strategy Catalog**: Retry with decorrelated exponential jitter, Circuit Breaker, Timeout, Rate Limiting (Concurrency, Sliding Window, Token Bucket, Fixed Window), Fallback, and Speculative Hedging.
+- 🧪 **Enterprise Quality Gates**: 95%+ mutation test score baseline (Stryker.NET), NetArchTest architecture rules enforcement, and automated compliance auditing.
 
 ---
 
@@ -103,15 +110,15 @@ High-performance, Clean Architecture resilience framework, fault-tolerance ecosy
 
 The `EricksonLopez.Resilience` ecosystem is partitioned into modular, fine-grained packages targeting `net8.0`, `net9.0`, and `net10.0`:
 
-| Package | Layer | Description | Target Frameworks | NuGet |
-|---|---|---|---|:---:|
-| [`EricksonLopez.Resilience.Abstractions`](https://www.nuget.org/packages/EricksonLopez.Resilience.Abstractions) | L0 Foundation | Core contracts (`IResilienceExecutor`, `IResiliencePipeline`, `ResilienceContext`, Strategy Options) | `net8.0;net9.0;net10.0` | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.Abstractions?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.Abstractions) |
-| [`EricksonLopez.Resilience`](https://www.nuget.org/packages/EricksonLopez.Resilience) | L2 Core | Fluent strategy builders, `ResultRetryClassifier`, `ResiliencePolicy` base class, and registries | `net8.0;net9.0;net10.0` | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience) |
-| [`EricksonLopez.Resilience.Polly`](https://www.nuget.org/packages/EricksonLopez.Resilience.Polly) | L4 Infrastructure | Polly v8+ execution engine adapter, pipeline builders, and exception translators | `net8.0;net9.0;net10.0` | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.Polly?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.Polly) |
-| [`EricksonLopez.Resilience.DependencyInjection`](https://www.nuget.org/packages/EricksonLopez.Resilience.DependencyInjection) | L3 Integration | Service registration extensions (`AddEricksonLopezResilience`) and configuration binders | `net8.0;net9.0;net10.0` | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.DependencyInjection?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.DependencyInjection) |
-| [`EricksonLopez.Resilience.Mediator`](https://www.nuget.org/packages/EricksonLopez.Resilience.Mediator) | L3 Integration | Zero-allocation struct-continuation `ResiliencePipelineBehavior` for `EricksonLopez.Mediator` | `net8.0;net9.0;net10.0` | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.Mediator?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.Mediator) |
-| [`EricksonLopez.Resilience.OpenTelemetry`](https://www.nuget.org/packages/EricksonLopez.Resilience.OpenTelemetry) | L3 Observability | Metrics (`ResilienceMeter`) and distributed tracing instrumentation (`ResilienceActivitySource`) | `net8.0;net9.0;net10.0` | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.OpenTelemetry?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.OpenTelemetry) |
-| [`EricksonLopez.Resilience.AspNetCore`](https://www.nuget.org/packages/EricksonLopez.Resilience.AspNetCore) | L3 Presentation | Minimal API `RequireResilience` endpoint metadata and resilient `HttpClient` delegating handlers | `net8.0;net9.0;net10.0` | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.AspNetCore?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.AspNetCore) |
+| Package | Version | Description |
+|---|---|---|
+| [`EricksonLopez.Resilience.Abstractions`](https://www.nuget.org/packages/EricksonLopez.Resilience.Abstractions) | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.Abstractions?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.Abstractions) | L0 Foundation: Core contracts (`IResilienceExecutor`, `IResiliencePipeline`, `ResilienceContext`, Strategy Options) for clean domain/application isolation |
+| [`EricksonLopez.Resilience`](https://www.nuget.org/packages/EricksonLopez.Resilience) | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience) | L2 Core: Fluent strategy builders, `ResultRetryClassifier`, `ResiliencePolicy` base class, and pipeline registries |
+| [`EricksonLopez.Resilience.Polly`](https://www.nuget.org/packages/EricksonLopez.Resilience.Polly) | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.Polly?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.Polly) | L4 Infrastructure: Polly v8+ execution engine adapter, pipeline translators, and exception mapping |
+| [`EricksonLopez.Resilience.DependencyInjection`](https://www.nuget.org/packages/EricksonLopez.Resilience.DependencyInjection) | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.DependencyInjection?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.DependencyInjection) | L3 Integration: Service registration extensions (`AddEricksonLopezResilience`) and reflection-free `IConfiguration` binders |
+| [`EricksonLopez.Resilience.Mediator`](https://www.nuget.org/packages/EricksonLopez.Resilience.Mediator) | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.Mediator?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.Mediator) | L3 Integration: Minimized-allocation struct-continuation `ResiliencePipelineBehavior` for `EricksonLopez.Mediator` (`IResilientRequest`) |
+| [`EricksonLopez.Resilience.OpenTelemetry`](https://www.nuget.org/packages/EricksonLopez.Resilience.OpenTelemetry) | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.OpenTelemetry?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.OpenTelemetry) | L3 Observability: W3C semantic metrics (`ResilienceMeter`) and distributed tracing instrumentation (`ResilienceActivitySource`) |
+| [`EricksonLopez.Resilience.AspNetCore`](https://www.nuget.org/packages/EricksonLopez.Resilience.AspNetCore) | [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience.AspNetCore?style=flat-square)](https://www.nuget.org/packages/EricksonLopez.Resilience.AspNetCore) | L3 Presentation: Minimal API `RequireResilience` endpoint metadata and resilient `HttpClient` delegating handlers |
 
 ---
 
@@ -139,9 +146,12 @@ The repository provides an executable showcase (`samples/Showcase/`) covering pr
 
 ### 📖 Technical Reference & Architecture Guides
 
+- [**Getting Started Guide**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/getting-started.md) — Quickstart, service registration, and core patterns.
 - [**Architecture & Design Principles**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/architecture.md) — Layer segregation, execution pipelines, and invariants.
+- [**Master Feature & Resilience Strategies Matrix**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/master-feature-matrix.md) — Capabilities matrix, backoff models, and transitions.
 - [**API Reference Guide**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/api-reference.md) — Microsoft Learn-style documentation for all public types.
-- [**Architectural Decision Records (ADRs)**](https://github.com/ericksonlopezf/dotnet-resilience/tree/main/docs/decisions) — ADRs documenting design rationale (ADR-001 to ADR-019).
+- [**Public API Inventory**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/api-inventory.md) — Exhaustive inventory of exported public types across all packages.
+- [**Architectural Decision Records (ADRs)**](https://github.com/ericksonlopezf/dotnet-resilience/tree/main/docs/decisions) — ADRs documenting design rationale (ADR-001 to ADR-021).
 - [**Resilience Policies Guide**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/policies.md) — Policy declaration, registries, and presets.
 - [**Retry Strategy & Jitter**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/retry.md) — Backoff algorithms, jitter decorators, and retry conditions.
 - [**Circuit Breaker Strategy**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/circuit-breaker.md) — State machine transitions, failure ratios, and break durations.
@@ -159,6 +169,7 @@ The repository provides an executable showcase (`samples/Showcase/`) covering pr
 - [**ASP.NET Core Endpoint Resilience**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/aspnet-core.md) — Minimal API metadata and endpoint filters.
 - [**Resilient HttpClient Integration**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/http-client.md) — Delegating handlers and HTTP policies.
 - [**Testing Strategies & Verification**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/testing.md) — Unit testing with `PassthroughResiliencePipeline`.
+- [**Framework Testing Roadmap**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/testing-roadmap.md) — Idempotent quality gate execution and mutation tracking.
 - [**Performance & Allocation Benchmarks**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/performance.md) — Allocation profiles and BenchmarkDotNet setup.
 - [**Native AOT & Trimming Compatibility**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/aot.md) — Trim-safety guarantees and smoke test architecture.
 - [**CI/CD, Quality Gates & Build Engineering**](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/ci-cd-quality.md) — Quality gates, CPM, and GitHub Actions workflows.
@@ -644,8 +655,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
-services.AddResilienceOpenTelemetry();
-
+// 1. Register OpenTelemetry Meter and ActivitySource:
 services.AddOpenTelemetry()
     .WithMetrics(metrics =>
     {
@@ -655,6 +665,16 @@ services.AddOpenTelemetry()
     {
         tracing.AddSource("EricksonLopez.Resilience");
     });
+
+// 2. Optionally attach per-strategy telemetry hooks via WithTelemetry() extensions:
+using EricksonLopez.Resilience.Options;
+
+var retryOpts = new RetryStrategyOptions { MaxRetryAttempts = 3 }.WithTelemetry();
+var cbOpts = new CircuitBreakerStrategyOptions { MinimumThroughput = 5 }.WithTelemetry();
+var timeoutOpts = new TimeoutStrategyOptions { Timeout = TimeSpan.FromSeconds(10) }.WithTelemetry();
+
+// High-level execution telemetry (duration, correlation, tenant) is emitted automatically
+// by PollyResilienceExecutor without any strategy-level opt-in.
 ```
 
 #### Emitted Metrics & Activity Tags
@@ -673,37 +693,39 @@ services.AddOpenTelemetry()
 
 ### Mediator Pipeline Behavior
 
-Integrate resilience into `EricksonLopez.Mediator` with zero-allocation struct continuations:
+Integrate resilience into `EricksonLopez.Mediator` with minimized-allocation struct continuations:
 
 ```csharp
-using EricksonLopez.Mediator.Extensions;
 using EricksonLopez.Resilience.Mediator.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
-services.AddMediator(options =>
-{
-    // Auto-discover handlers
-    options.RegisterServicesFromAssemblyContaining<Program>();
-});
+// 1. Register EricksonLopez.Mediator and handlers per the EricksonLopez.Mediator documentation:
+//    see https://github.com/ericksonlopezf/dotnet-mediator
 
-// Register resilience struct pipeline behavior
+// 2. Register the resilience struct pipeline behavior:
 services.AddResiliencePipelineBehavior();
+
+// 3. Ensure the resilience infrastructure is registered:
+services.AddEricksonLopezResilience(opt =>
+{
+    opt.AddPolicy("my-policy", builder => builder.AddStandardResilience());
+});
 ```
 
-### Source-Generated Configuration Binders
+### Reflection-Free Configuration Binders
 
-Bind strategy options without runtime reflection to preserve 100% Native AOT compatibility:
+Bind strategy options directly from `IConfigurationSection` using AOT-safe explicit parsers. Scalar values (`int`, `double`, `TimeSpan`) use reflection-free parsing; enum-typed options (`BackoffType`, `RateLimiterType`) use `Enum.TryParse<T>` with compile-time-known types, which is AOT-compatible in .NET 8+ via generic specialization:
 
 ```csharp
-using EricksonLopez.Resilience.Configuration;
+using EricksonLopez.Resilience.DependencyInjection;
 using EricksonLopez.Resilience.Options;
 using Microsoft.Extensions.Configuration;
 
-var retryOptions = new RetryStrategyOptions();
-ResilienceConfigurationExtensions.BindRetryOptions(retryOptions, configuration.GetSection("Retry"));
-
-var timeoutOptions = new TimeoutStrategyOptions();
-ResilienceConfigurationExtensions.BindTimeoutOptions(timeoutOptions, configuration.GetSection("Timeout"));
+// Bind strongly-typed strategy options without reflection:
+RetryStrategyOptions retryOptions = configuration.GetSection("Retry").BindRetryOptions();
+TimeoutStrategyOptions timeoutOptions = configuration.GetSection("Timeout").BindTimeoutOptions();
+CircuitBreakerStrategyOptions circuitOptions = configuration.GetSection("CircuitBreaker").BindCircuitBreakerOptions();
+RateLimiterStrategyOptions rateLimiterOptions = configuration.GetSection("RateLimiter").BindRateLimiterOptions();
 ```
 
 ---
@@ -799,7 +821,7 @@ The repository enforces industry-leading software engineering quality standards:
 
 ## ⚡ Performance Benchmarks
 
-> **Environment:** .NET 10.0.10 (X64 RyuJIT AVX-512), BenchmarkDotNet v0.15.8, Windows 11 Enterprise.
+> **Environment:** .NET 10.0.10, X64 RyuJIT AVX-512, BenchmarkDotNet v0.15.8, Windows 11 Enterprise.
 
 ### Primary Operations Benchmark
 
@@ -841,6 +863,8 @@ To prevent resource exhaustion and cascading failures, strategies are executed i
 
 ---
 
+> 🛡️ **Target Framework & Lifecycle Policy**: First-class multi-targeting across `.NET 10` (Modern LTS), `.NET 9` (STS), and `.NET 8` (Enterprise LTS) is actively maintained. Full backward compatibility is guaranteed until Microsoft officially reaches End-of-Life (EOL) for .NET 8 and .NET 9 in November 2026, at which milestone the ecosystem will transition to .NET 10 and .NET 11.
+
 ## 🏛️ Architecture & Design Principles
 
 ### Clean Architecture Layer Segregation
@@ -868,7 +892,7 @@ flowchart TD
     subgraph Infrastructure ["Infrastructure Layer (EricksonLopez.Resilience.Polly - L4)"]
         PollyAdapter[PollyResiliencePipeline]
         PollyTranslator[PollyPipelineBuilderTranslator]
-        PollyEngine[Polly v8.5+ Core Engine]
+        PollyEngine[Polly v8.7 Core Engine]
     end
 
     API --> DelegatingHandler
@@ -938,7 +962,7 @@ stateDiagram-v8
 | **Asynchronous Flow** | Blocking synchronously with `.Result` or `.GetAwaiter().GetResult()` | Awaiting pure `ValueTask` APIs (`await executor.ExecuteAsync(...)`) |
 | **Idempotency** | Generating a new idempotency key inside the retry loop | Generating the idempotency key outside and propagating it via `ResilienceContext` |
 | **Circuit Breaker** | Setting `MinimumThroughput` too low (e.g., 1 or 2) | Setting realistic throughput (e.g. 10+) to avoid false-positive breaks |
-| **Context Overhead** | Manually creating unpooled context instances in loops | Utilizing `ResilienceContext.Create(...)` context pooling |
+| **Context Overhead** | Sharing or reusing `ResilienceContext` instances across concurrent calls (risks state/tenant leakage) | Using `ResilienceContext.Create(...)` for a fresh, isolated context per execution — low-allocation by design (~32–112 bytes); Polly's internal pool manages engine-level state automatically |
 
 ---
 
@@ -1009,14 +1033,18 @@ pwsh -File scripts/verify-compliance.ps1
 
 # 6. Run benchmarks
 dotnet run -c Release --project benchmarks/EricksonLopez.Resilience.Benchmarks/EricksonLopez.Resilience.Benchmarks.csproj
+
+# 7. Run mutation testing (Stryker.NET)
+dotnet stryker --config-file stryker-abstractions-config.json
+dotnet stryker --config-file stryker-core-config.json
+dotnet stryker --config-file stryker-polly-config.json
+dotnet stryker --config-file stryker-dependencyinjection-config.json
+dotnet stryker --config-file stryker-mediator-config.json
+dotnet stryker --config-file stryker-opentelemetry-config.json
+dotnet stryker --config-file stryker-aspnetcore-config.json
 ```
 
-For more details, please see:
-- [Contributing Guidelines](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/CONTRIBUTING.md)
-- [Code of Conduct](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/CODE_OF_CONDUCT.md)
-- [Security Policy](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/SECURITY.md)
-- [Support Policy](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/SUPPORT.md)
-- [Product Roadmap](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/roadmap.md)
+Please read our [Contributing Guidelines](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/CONTRIBUTING.md), [Code of Conduct](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/CODE_OF_CONDUCT.md), [Security Policy](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/SECURITY.md), [Support Policy](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/SUPPORT.md), and [Product Roadmap](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/ROADMAP.md) before submitting pull requests.
 
 ---
 

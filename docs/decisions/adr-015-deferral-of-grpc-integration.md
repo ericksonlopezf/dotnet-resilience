@@ -1,7 +1,10 @@
 # ADR-015: Deferral of EricksonLopez.Resilience.Grpc Integration
 
 ## Status
-**Deferred** — Revisit when documented user demand exists
+Deferred — Revisit when documented user demand exists
+
+## Date
+2026-09-04
 
 ## Context
 gRPC is a widely adopted inter-service communication protocol in microservice architectures. A `ClientInterceptor` implementation that wraps gRPC calls with ecosystem resilience pipelines was considered as an integration layer analogous to `ResilienceDelegatingHandler` for HttpClient.

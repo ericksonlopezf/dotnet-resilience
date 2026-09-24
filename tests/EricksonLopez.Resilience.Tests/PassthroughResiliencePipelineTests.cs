@@ -258,4 +258,85 @@ public sealed class PassthroughResiliencePipelineTests
         await act2.Should().ThrowAsync<ArgumentNullException>();
         await act3.Should().ThrowAsync<ArgumentNullException>();
     }
+
+    [Fact]
+    public void Instance_HasCorrectDefaultName()
+    {
+        PassthroughResiliencePipeline.Instance.Name.Should().Be("passthrough");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_UntypedGeneric_EffectiveContextResolution_MatchesExpectedTokens()
+    {
+        var pipeline = new PassthroughResiliencePipeline("passthrough");
+        using var cts1 = new CancellationTokenSource();
+        using var cts2 = new CancellationTokenSource();
+        var contextWithToken = new ResilienceContext("pol", cancellationToken: cts1.Token);
+
+        // Case 1: default token -> receives original context
+        ResilienceContext? received1 = null;
+        await pipeline.ExecuteAsync(ctx => { received1 = ctx; return ValueTask.FromResult(1); }, contextWithToken, default);
+        received1.Should().BeSameAs(contextWithToken);
+
+        // Case 2: same token -> receives original context
+        ResilienceContext? received2 = null;
+        await pipeline.ExecuteAsync(ctx => { received2 = ctx; return ValueTask.FromResult(2); }, contextWithToken, cts1.Token);
+        received2.Should().BeSameAs(contextWithToken);
+
+        // Case 3: different token -> receives new context with token
+        ResilienceContext? received3 = null;
+        await pipeline.ExecuteAsync(ctx => { received3 = ctx; return ValueTask.FromResult(3); }, contextWithToken, cts2.Token);
+        received3.Should().NotBeSameAs(contextWithToken);
+        received3!.CancellationToken.Should().Be(cts2.Token);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_UntypedNonGeneric_EffectiveContextResolution_MatchesExpectedTokens()
+    {
+        var pipeline = new PassthroughResiliencePipeline("passthrough");
+        using var cts1 = new CancellationTokenSource();
+        using var cts2 = new CancellationTokenSource();
+        var contextWithToken = new ResilienceContext("pol", cancellationToken: cts1.Token);
+
+        // Case 1: default token -> receives original context
+        ResilienceContext? received1 = null;
+        await pipeline.ExecuteAsync(ctx => { received1 = ctx; return ValueTask.CompletedTask; }, contextWithToken, default);
+        received1.Should().BeSameAs(contextWithToken);
+
+        // Case 2: same token -> receives original context
+        ResilienceContext? received2 = null;
+        await pipeline.ExecuteAsync(ctx => { received2 = ctx; return ValueTask.CompletedTask; }, contextWithToken, cts1.Token);
+        received2.Should().BeSameAs(contextWithToken);
+
+        // Case 3: different token -> receives new context with token
+        ResilienceContext? received3 = null;
+        await pipeline.ExecuteAsync(ctx => { received3 = ctx; return ValueTask.CompletedTask; }, contextWithToken, cts2.Token);
+        received3.Should().NotBeSameAs(contextWithToken);
+        received3!.CancellationToken.Should().Be(cts2.Token);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_Typed_EffectiveContextResolution_MatchesExpectedTokens()
+    {
+        var pipeline = new PassthroughResiliencePipeline<string>("passthrough");
+        using var cts1 = new CancellationTokenSource();
+        using var cts2 = new CancellationTokenSource();
+        var contextWithToken = new ResilienceContext("pol", cancellationToken: cts1.Token);
+
+        // Case 1: default token -> receives original context
+        ResilienceContext? received1 = null;
+        await pipeline.ExecuteAsync(ctx => { received1 = ctx; return ValueTask.FromResult("a"); }, contextWithToken, default);
+        received1.Should().BeSameAs(contextWithToken);
+
+        // Case 2: same token -> receives original context
+        ResilienceContext? received2 = null;
+        await pipeline.ExecuteAsync(ctx => { received2 = ctx; return ValueTask.FromResult("b"); }, contextWithToken, cts1.Token);
+        received2.Should().BeSameAs(contextWithToken);
+
+        // Case 3: different token -> receives new context with token
+        ResilienceContext? received3 = null;
+        await pipeline.ExecuteAsync(ctx => { received3 = ctx; return ValueTask.FromResult("c"); }, contextWithToken, cts2.Token);
+        received3.Should().NotBeSameAs(contextWithToken);
+        received3!.CancellationToken.Should().Be(cts2.Token);
+    }
 }

@@ -11,10 +11,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 7 — Scalability: High-Throughput Benchmarks, Zero-Allocation Pooling, and Rate Limiting.
+/// Provides scalability demonstrations illustrating high-throughput execution, zero-allocation pooling, and rate limiting.
 /// </summary>
 public static class Level7Scalability
 {
+    /// <summary>
+    /// Executes the scalability resilience demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunAsync()
     {
         Console.WriteLine("================================================================================");

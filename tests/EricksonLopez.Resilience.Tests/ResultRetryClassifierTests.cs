@@ -240,4 +240,123 @@ public sealed class ResultRetryClassifierTests
         // Assert
         decision.Should().Be(RetryabilityDecision.Undetermined);
     }
+
+    [Fact]
+    public void ClassifyException_WithTimeoutRejectedException_ReturnsRetry()
+    {
+        var localTimeoutEx = new TimeoutRejectedException();
+        _classifier.ClassifyException(localTimeoutEx).Should().Be(RetryabilityDecision.Retry);
+
+        var pollyTimeoutEx = new Polly.Timeout.TimeoutRejectedException();
+        _classifier.ClassifyException(pollyTimeoutEx).Should().Be(RetryabilityDecision.Retry);
+    }
+
+    [Theory]
+    [InlineData(1205, RetryabilityDecision.Retry)]
+    [InlineData(3960, RetryabilityDecision.Retry)]
+    [InlineData(10053, RetryabilityDecision.Retry)]
+    [InlineData(10054, RetryabilityDecision.Retry)]
+    [InlineData(10060, RetryabilityDecision.Retry)]
+    [InlineData(40613, RetryabilityDecision.Retry)]
+    [InlineData(40197, RetryabilityDecision.Retry)]
+    [InlineData(40501, RetryabilityDecision.Retry)]
+    [InlineData(547, RetryabilityDecision.Undetermined)]
+    public void ClassifyException_WithSqlException_ClassifiesByNumber(int number, RetryabilityDecision expected)
+    {
+        var ex = new SqlException { Number = number };
+        _classifier.ClassifyException(ex).Should().Be(expected);
+
+        // Also test as InnerException
+        var wrapped = new DummyWrapperException("Wrapped", ex);
+        _classifier.ClassifyException(wrapped).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ClassifyException_WithSqlExceptionWithoutNumberOrInvalidType_ReturnsUndetermined()
+    {
+        var exNoNumber = new AnotherNamespace.SqlException();
+        _classifier.ClassifyException(exNoNumber).Should().Be(RetryabilityDecision.Undetermined);
+
+        var exStringNumber = new AnotherNamespaceWithStr.SqlException { Number = "1205" };
+        _classifier.ClassifyException(exStringNumber).Should().Be(RetryabilityDecision.Undetermined);
+    }
+
+    [Theory]
+    [InlineData("40P01", RetryabilityDecision.Retry)]
+    [InlineData("40001", RetryabilityDecision.Retry)]
+    [InlineData("08000", RetryabilityDecision.Retry)]
+    [InlineData("08003", RetryabilityDecision.Retry)]
+    [InlineData("08006", RetryabilityDecision.Retry)]
+    [InlineData("57P01", RetryabilityDecision.Retry)]
+    [InlineData("23505", RetryabilityDecision.Undetermined)]
+    [InlineData(null, RetryabilityDecision.Undetermined)]
+    public void ClassifyException_WithNpgsqlException_ClassifiesBySqlState(string? sqlState, RetryabilityDecision expected)
+    {
+        var ex = new NpgsqlException { SqlState = sqlState };
+        _classifier.ClassifyException(ex).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ClassifyException_WithNpgsqlExceptionWithoutSqlState_ReturnsUndetermined()
+    {
+        var exNoSqlState = new AnotherNamespaceNpgsql.NpgsqlException();
+        _classifier.ClassifyException(exNoSqlState).Should().Be(RetryabilityDecision.Undetermined);
+    }
+
+    [Fact]
+    public void ClassifyException_WithPostgresException_ClassifiesBySqlState()
+    {
+        var ex = new PostgresException { SqlState = "40P01" };
+        _classifier.ClassifyException(ex).Should().Be(RetryabilityDecision.Retry);
+
+        var exNonTransient = new PostgresException { SqlState = "23505" };
+        _classifier.ClassifyException(exNonTransient).Should().Be(RetryabilityDecision.Undetermined);
+    }
+
+    [Theory]
+    [InlineData(1213, RetryabilityDecision.Retry)]
+    [InlineData(1205, RetryabilityDecision.Retry)]
+    [InlineData(1062, RetryabilityDecision.Undetermined)]
+    public void ClassifyException_WithMySqlException_ClassifiesByNumber(int number, RetryabilityDecision expected)
+    {
+        var ex = new MySqlException { Number = number };
+        _classifier.ClassifyException(ex).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ClassifyException_WithMySqlExceptionWithoutNumber_ReturnsUndetermined()
+    {
+        var exNoNumber = new AnotherNamespaceMySql.MySqlException();
+        _classifier.ClassifyException(exNoNumber).Should().Be(RetryabilityDecision.Undetermined);
+    }
 }
+
+public class SqlException : Exception
+{
+    public int Number { get; set; }
+}
+
+public class NpgsqlException : Exception
+{
+    public string? SqlState { get; set; }
+}
+
+public class PostgresException : Exception
+{
+    public string? SqlState { get; set; }
+}
+
+public class MySqlException : Exception
+{
+    public int Number { get; set; }
+}
+
+public class TimeoutRejectedException : Exception
+{
+}
+
+public class DummyWrapperException : Exception
+{
+    public DummyWrapperException(string message, Exception inner) : base(message, inner) { }
+}
+

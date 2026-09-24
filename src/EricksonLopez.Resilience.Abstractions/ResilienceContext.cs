@@ -1,5 +1,6 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -12,15 +13,17 @@ namespace EricksonLopez.Resilience;
 /// Encapsulates execution metadata including policy identification, operation naming, correlation tracking,
 /// tenant isolation, and attempt tracking without introducing static or mutable ambient state.
 /// <para>
-/// The read-only properties <see cref="PolicyName"/>, <see cref="OperationName"/>, <see cref="CorrelationId"/>,
+/// The identity properties <see cref="PolicyName"/>, <see cref="OperationName"/>, <see cref="CorrelationId"/>,
 /// <see cref="TenantId"/>, and <see cref="CancellationToken"/> are set at construction and are immutable for the lifetime
-/// of the context instance. <see cref="SetProperty"/> mutates the internal properties dictionary in-place and is
-/// not thread-safe for concurrent callers. <see cref="AttemptNumber"/> is updated by the executor framework on each retry attempt.
+/// of the context instance. <see cref="SetProperty"/> mutates the internal properties dictionary thread-safely in-place.
+/// <see cref="AttemptNumber"/> is the sole mutable scalar field: it is incremented by the executor framework after each
+/// retry attempt to allow callbacks and classifiers to observe the current attempt index.
 /// </para>
 /// </remarks>
 public sealed class ResilienceContext
 {
-    private readonly Dictionary<string, object?> _properties;
+    private static readonly IReadOnlyDictionary<string, object?> s_emptyProperties = new System.Collections.ObjectModel.ReadOnlyDictionary<string, object?>(new Dictionary<string, object?>());
+    private ConcurrentDictionary<string, object?>? _properties;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ResilienceContext"/> class.
@@ -45,7 +48,6 @@ public sealed class ResilienceContext
         CorrelationId = correlationId;
         TenantId = tenantId;
         CancellationToken = cancellationToken;
-        _properties = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -76,12 +78,17 @@ public sealed class ResilienceContext
     /// <summary>
     /// Gets or sets the current execution attempt index (1-based).
     /// </summary>
+    /// <remarks>
+    /// Unlike other context properties which are immutable after construction, <see cref="AttemptNumber"/> is mutable
+    /// and is incremented by the executor framework on each retry attempt. Defaults to <c>1</c> at first execution.
+    /// Do not rely on this value being stable across concurrent references to the same context instance.
+    /// </remarks>
     public int AttemptNumber { get; set; } = 1;
 
     /// <summary>
     /// Gets a read-only view of custom context properties.
     /// </summary>
-    public IReadOnlyDictionary<string, object?> Properties => _properties;
+    public IReadOnlyDictionary<string, object?> Properties => _properties ?? s_emptyProperties;
 
     /// <summary>
     /// Creates a new <see cref="ResilienceContext"/> instance with the specified operation name.
@@ -153,7 +160,8 @@ public sealed class ResilienceContext
     public ResilienceContext SetProperty(string key, object? value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
-        _properties[key] = value;
+        var props = LazyInitializer.EnsureInitialized(ref _properties, static () => new ConcurrentDictionary<string, object?>(StringComparer.OrdinalIgnoreCase));
+        props[key] = value;
         return this;
     }
 
@@ -169,7 +177,7 @@ public sealed class ResilienceContext
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
-        if (_properties.TryGetValue(key, out var raw) && raw is T typedValue)
+        if (_properties != null && _properties.TryGetValue(key, out var raw) && raw is T typedValue)
         {
             value = typedValue;
             return true;
@@ -190,11 +198,35 @@ public sealed class ResilienceContext
         return new ResilienceContext(policyName, cancellationToken: cancellationToken);
     }
 
-    private void CopyPropertiesTo(ResilienceContext destination)
+    /// <summary>
+    /// Creates a new <see cref="ResilienceContext"/> instance with the specified cancellation token while preserving all metadata and properties.
+    /// </summary>
+    /// <param name="cancellationToken">The new cancellation token.</param>
+    /// <returns>A new context instance with the updated cancellation token.</returns>
+    public ResilienceContext WithCancellationToken(CancellationToken cancellationToken)
     {
-        foreach (var (k, v) in _properties)
+        var next = new ResilienceContext(PolicyName, OperationName, CorrelationId, TenantId, cancellationToken)
         {
-            destination._properties[k] = v;
+            AttemptNumber = AttemptNumber
+        };
+        CopyPropertiesTo(next);
+        return next;
+    }
+
+    /// <summary>
+    /// Copies all custom properties from this context to the specified destination context.
+    /// </summary>
+    /// <param name="destination">The destination context.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="destination"/> is <see langword="null"/></exception>
+    public void CopyPropertiesTo(ResilienceContext destination)
+    {
+        ArgumentNullException.ThrowIfNull(destination);
+        if (_properties != null && !_properties.IsEmpty)
+        {
+            foreach (var (k, v) in _properties)
+            {
+                destination.SetProperty(k, v);
+            }
         }
     }
 }

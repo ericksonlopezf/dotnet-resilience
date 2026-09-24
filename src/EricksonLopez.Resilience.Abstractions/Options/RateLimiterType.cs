@@ -13,7 +13,7 @@ public enum RateLimiterType
     SlidingWindow = 0,
 
     /// <summary>
-    /// Fixed replenishment time window resetting all permits at the start of each interval.
+    /// Resets all permits at the start of each fixed time interval.
     /// </summary>
     FixedWindow = 1,
 

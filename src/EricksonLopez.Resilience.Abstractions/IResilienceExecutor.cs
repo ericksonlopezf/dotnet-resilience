@@ -23,6 +23,12 @@ public interface IResilienceExecutor
     /// <param name="context">The resilience context containing metadata and telemetry context.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A value task representing the asynchronous operation. The task result contains the value produced by <paramref name="operation"/>.</returns>
+    /// <exception cref="Exceptions.CircuitBrokenException">The circuit breaker rejected the operation because the circuit is open.</exception>
+    /// <exception cref="Exceptions.ResilienceTimeoutException">The operation timed out according to the configured timeout limit.</exception>
+    /// <exception cref="Exceptions.RateLimitRejectedException">The rate limiter rejected the operation due to limit exhaustion.</exception>
+    /// <exception cref="Exceptions.ResiliencePolicyNotFoundException">No policy was registered under the specified <paramref name="policyName"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="operation"/> or <paramref name="context"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="policyName"/> is <see langword="null"/> or whitespace.</exception>
     ValueTask<TResult> ExecuteAsync<TResult>(
         string policyName,
         Func<ResilienceContext, ValueTask<TResult>> operation,
@@ -37,6 +43,12 @@ public interface IResilienceExecutor
     /// <param name="operation">The asynchronous operation accepting a cancellation token.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A value task representing the asynchronous operation. The task result contains the value produced by <paramref name="operation"/>.</returns>
+    /// <exception cref="Exceptions.CircuitBrokenException">The circuit breaker rejected the operation because the circuit is open.</exception>
+    /// <exception cref="Exceptions.ResilienceTimeoutException">The operation timed out according to the configured timeout limit.</exception>
+    /// <exception cref="Exceptions.RateLimitRejectedException">The rate limiter rejected the operation due to limit exhaustion.</exception>
+    /// <exception cref="Exceptions.ResiliencePolicyNotFoundException">No policy was registered under the specified <paramref name="policyName"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="operation"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="policyName"/> is <see langword="null"/> or whitespace.</exception>
     ValueTask<TResult> ExecuteAsync<TResult>(
         string policyName,
         Func<CancellationToken, ValueTask<TResult>> operation,
@@ -50,6 +62,12 @@ public interface IResilienceExecutor
     /// <param name="context">The resilience context containing metadata and telemetry context.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A value task representing the asynchronous operation.</returns>
+    /// <exception cref="Exceptions.CircuitBrokenException">The circuit breaker rejected the operation because the circuit is open.</exception>
+    /// <exception cref="Exceptions.ResilienceTimeoutException">The operation timed out according to the configured timeout limit.</exception>
+    /// <exception cref="Exceptions.RateLimitRejectedException">The rate limiter rejected the operation due to limit exhaustion.</exception>
+    /// <exception cref="Exceptions.ResiliencePolicyNotFoundException">No policy was registered under the specified <paramref name="policyName"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="operation"/> or <paramref name="context"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="policyName"/> is <see langword="null"/> or whitespace.</exception>
     ValueTask ExecuteAsync(
         string policyName,
         Func<ResilienceContext, ValueTask> operation,
@@ -63,6 +81,12 @@ public interface IResilienceExecutor
     /// <param name="operation">The asynchronous action accepting a cancellation token.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A value task representing the asynchronous operation.</returns>
+    /// <exception cref="Exceptions.CircuitBrokenException">The circuit breaker rejected the operation because the circuit is open.</exception>
+    /// <exception cref="Exceptions.ResilienceTimeoutException">The operation timed out according to the configured timeout limit.</exception>
+    /// <exception cref="Exceptions.RateLimitRejectedException">The rate limiter rejected the operation due to limit exhaustion.</exception>
+    /// <exception cref="Exceptions.ResiliencePolicyNotFoundException">No policy was registered under the specified <paramref name="policyName"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="operation"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="policyName"/> is <see langword="null"/> or whitespace.</exception>
     ValueTask ExecuteAsync(
         string policyName,
         Func<CancellationToken, ValueTask> operation,

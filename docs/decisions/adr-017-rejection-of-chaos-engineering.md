@@ -1,7 +1,10 @@
 # ADR-017: Rejection of Chaos Engineering Support
 
 ## Status
-**Rejected** — Out-of-scope for core library; delegate to dedicated tooling
+Rejected — Out-of-scope for core library; delegate to dedicated tooling
+
+## Date
+2026-09-04
 
 ## Context
 Chaos engineering (fault injection) libraries such as Polly's `Simmy` extension allow developers to intentionally inject failures, latency, and faults into resilience pipelines for testing purposes. This was evaluated as a potential feature to aid in validating resilience configurations during development and CI.
