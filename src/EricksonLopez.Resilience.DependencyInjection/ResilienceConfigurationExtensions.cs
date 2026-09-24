@@ -1,7 +1,6 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
 using System.Globalization;
-using EricksonLopez.Resilience.Builder;
 using EricksonLopez.Resilience.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,6 +61,7 @@ public static class ResilienceConfigurationExtensions
     /// </summary>
     /// <param name="section">The configuration section.</param>
     /// <returns>A populated <see cref="RetryStrategyOptions"/> instance.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="section"/> is <see langword="null"/></exception>
     public static RetryStrategyOptions BindRetryOptions(this IConfigurationSection section)
     {
         ArgumentNullException.ThrowIfNull(section);
@@ -115,6 +115,7 @@ public static class ResilienceConfigurationExtensions
     /// </summary>
     /// <param name="section">The configuration section.</param>
     /// <returns>A populated <see cref="CircuitBreakerStrategyOptions"/> instance.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="section"/> is <see langword="null"/></exception>
     public static CircuitBreakerStrategyOptions BindCircuitBreakerOptions(this IConfigurationSection section)
     {
         ArgumentNullException.ThrowIfNull(section);
@@ -162,6 +163,7 @@ public static class ResilienceConfigurationExtensions
     /// </summary>
     /// <param name="section">The configuration section.</param>
     /// <returns>A populated <see cref="TimeoutStrategyOptions"/> instance.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="section"/> is <see langword="null"/></exception>
     public static TimeoutStrategyOptions BindTimeoutOptions(this IConfigurationSection section)
     {
         ArgumentNullException.ThrowIfNull(section);
@@ -194,6 +196,7 @@ public static class ResilienceConfigurationExtensions
     /// </summary>
     /// <param name="section">The configuration section.</param>
     /// <returns>A populated <see cref="RateLimiterStrategyOptions"/> instance.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="section"/> is <see langword="null"/></exception>
     public static RateLimiterStrategyOptions BindRateLimiterOptions(this IConfigurationSection section)
     {
         ArgumentNullException.ThrowIfNull(section);

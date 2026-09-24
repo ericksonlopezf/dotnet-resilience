@@ -11,6 +11,15 @@ namespace EricksonLopez.Resilience.Pipelines;
 public sealed class PassthroughResiliencePipeline : IResiliencePipeline
 {
     /// <summary>
+    /// Gets a shared singleton <see cref="PassthroughResiliencePipeline"/> instance with name <c>"passthrough"</c>.
+    /// </summary>
+    /// <remarks>
+    /// Use this instance in unit test suites to bypass all resilience strategy evaluation and execute delegates directly,
+    /// enabling deterministic testing without retry, circuit breaker, or timeout interference.
+    /// </remarks>
+    public static PassthroughResiliencePipeline Instance { get; } = new("passthrough");
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="PassthroughResiliencePipeline"/> class.
     /// </summary>
     /// <param name="name">The name of the pipeline.</param>
@@ -35,7 +44,10 @@ public sealed class PassthroughResiliencePipeline : IResiliencePipeline
 
         var token = cancellationToken != default ? cancellationToken : context.CancellationToken;
         token.ThrowIfCancellationRequested();
-        return operation(context);
+        var effectiveContext = cancellationToken != default && cancellationToken != context.CancellationToken
+            ? context.WithCancellationToken(cancellationToken)
+            : context;
+        return operation(effectiveContext);
     }
 
     /// <inheritdoc/>
@@ -59,7 +71,10 @@ public sealed class PassthroughResiliencePipeline : IResiliencePipeline
 
         var token = cancellationToken != default ? cancellationToken : context.CancellationToken;
         token.ThrowIfCancellationRequested();
-        return operation(context);
+        var effectiveContext = cancellationToken != default && cancellationToken != context.CancellationToken
+            ? context.WithCancellationToken(cancellationToken)
+            : context;
+        return operation(effectiveContext);
     }
 
     /// <inheritdoc/>

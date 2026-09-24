@@ -33,7 +33,9 @@ public sealed class PollyContextAdapterTests
         var ecoContext = ResilienceContext.Create("sample-policy", cts.Token)
             .WithOperationName("ProcessPayment")
             .WithCorrelationId("corr-777")
-            .WithTenantId("tenant-xyz");
+            .WithTenantId("tenant-xyz")
+            .SetProperty("my-key", 42)
+            .SetProperty("app-name", "Payments");
 
         // Act
         var pollyContext = PollyContextAdapter.ToPollyContext(ecoContext);
@@ -45,6 +47,14 @@ public sealed class PollyContextAdapterTests
         var key = new ResiliencePropertyKey<ResilienceContext>("EricksonLopez.Resilience.EcosystemContext");
         pollyContext.Properties.TryGetValue(key, out var retrieved).Should().BeTrue();
         retrieved.Should().BeSameAs(ecoContext);
+
+        var customPropKey = new ResiliencePropertyKey<object?>("my-key");
+        pollyContext.Properties.TryGetValue(customPropKey, out var customVal).Should().BeTrue();
+        customVal.Should().Be(42);
+
+        var appPropKey = new ResiliencePropertyKey<object?>("app-name");
+        pollyContext.Properties.TryGetValue(appPropKey, out var appVal).Should().BeTrue();
+        appVal.Should().Be("Payments");
 
         var extractedContext = PollyContextAdapter.GetEcosystemContext(pollyContext);
         extractedContext.Should().NotBeNull();

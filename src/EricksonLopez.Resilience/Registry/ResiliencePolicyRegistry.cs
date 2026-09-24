@@ -16,6 +16,13 @@ public sealed class ResiliencePolicyRegistry
     private readonly ConcurrentDictionary<string, IResiliencePolicy> _policies = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="ResiliencePolicyRegistry"/> class.
+    /// </summary>
+    public ResiliencePolicyRegistry()
+    {
+    }
+
+    /// <summary>
     /// Gets all registered policy definitions.
     /// </summary>
     [SuppressMessage("Major Code Smell", "S2365:Properties should not copy collections", Justification = "Returns a thread-safe snapshot array of registered policies")]

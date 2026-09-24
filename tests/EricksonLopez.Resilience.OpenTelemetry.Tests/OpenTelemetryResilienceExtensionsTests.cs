@@ -13,8 +13,18 @@ using Xunit;
 namespace EricksonLopez.Resilience.OpenTelemetry.Tests;
 
 [Collection("OpenTelemetryTests")]
-public sealed class OpenTelemetryResilienceExtensionsTests
+public sealed class OpenTelemetryResilienceExtensionsTests : IDisposable
 {
+    public OpenTelemetryResilienceExtensionsTests()
+    {
+        ResilienceMeter.IncludeTenantIdTag = true;
+    }
+
+    public void Dispose()
+    {
+        ResilienceMeter.IncludeTenantIdTag = false;
+    }
+
     private sealed class CapturedMeasurement<T>
     {
         public string InstrumentName { get; init; } = string.Empty;

@@ -1,7 +1,10 @@
 # ADR-012: Rejection of Hystrix-style Dashboard UI
 
 ## Status
-**Rejected**
+Rejected
+
+## Date
+2026-09-04
 
 ## Context
 Some resilience libraries (notably Netflix Hystrix and early Steeltoe implementations) provide a dashboard UI for real-time monitoring of circuit breaker states, retry rates, and throughput. This was evaluated as a potential feature to aid operational visibility.

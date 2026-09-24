@@ -1,7 +1,10 @@
 # ADR-013: Rejection of Custom Strategy Extensibility (ResilienceStrategy<T>)
 
 ## Status
-**Rejected**
+Rejected
+
+## Date
+2026-09-04
 
 ## Context
 Polly v8 exposes `ResilienceStrategy<T>` as an extension point that allows consumers to implement entirely custom resilience strategies and add them to a pipeline builder. This capability was evaluated for inclusion in `EricksonLopez.Resilience` to allow developers to author proprietary strategies using the ecosystem's builder API.

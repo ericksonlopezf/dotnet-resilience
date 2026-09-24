@@ -1,6 +1,5 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
-using System.Threading.Tasks;
 using EricksonLopez.Resilience.Options;
 
 namespace EricksonLopez.Resilience.OpenTelemetry.Extensions;

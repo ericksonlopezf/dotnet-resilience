@@ -1,29 +1,53 @@
 # Copyright © Erickson Lopez. MIT License.
 
-# .NET Build Outputs
+# =============================================================================
+# .NET Build, Native AOT & Compilation Outputs
+# =============================================================================
 bin/
 obj/
 **/bin/
 **/obj/
 aot-output/
+aot-smoke-output/
+*-output/
+publish/
+**/publish/
 *.binlog
 
-# Strong Name Keys
-# *.snk (Allowed for open source projects with public keys)
+# =============================================================================
+# Signing, Strong Name & Certificates
+# =============================================================================
+# Allow official repository strong name keys
+!EricksonLopez.snk
 !public.snk
+*.pfx
+*.p12
+*.key
+*.pem
+*.asc
 
-# Backup & Temp files
+# =============================================================================
+# Backup & Temporary Files
+# =============================================================================
 *.bak
 *.tmp
 *.temp
+*~
+scratch/
 
-# NuGet packages
+# =============================================================================
+# NuGet Packaging & Artifacts
+# =============================================================================
 artifacts/
 nupkgs/
+**/artifacts/
+**/nupkgs/
 *.nupkg
 *.snupkg
 
-# Visual Studio / Rider / Resharper
+# =============================================================================
+# Visual Studio / JetBrains Rider / ReSharper
+# =============================================================================
 .vs/
 *.user
 *.suo
@@ -31,10 +55,14 @@ nupkgs/
 *.sln.docstates
 .idea/
 *.sln.iml
+*.DotSettings
 *.DotSettings.user
 _ReSharper*/
+.resharper/
 
+# =============================================================================
 # Visual Studio Code
+# =============================================================================
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -42,7 +70,9 @@ _ReSharper*/
 !.vscode/extensions.json
 *.code-workspace
 
-# Test, Stryker & Benchmark Artifacts
+# =============================================================================
+# Test, Stryker, Code Coverage & Dumps
+# =============================================================================
 [Tt]est[Rr]esults*/
 test-results/
 **/TestResults/
@@ -60,20 +90,45 @@ temp-coverage-report/
 coverage.*/
 **/coverage.*
 StrykerOutput/
+**/StrykerOutput/
 diag.log
-BenchmarkDotNet.Artifacts/
-benchmarks/results/*.log
+*.dmp
+*.mdmp
 
-# Node / Script Tooling (Mutation Testing Scripts)
+# =============================================================================
+# BenchmarkDotNet & Performance Artifacts
+# =============================================================================
+BenchmarkDotNet.Artifacts/
+**/BenchmarkDotNet.Artifacts/
+benchmarks/results/*.log
+!benchmarks/results/baseline.json
+
+# =============================================================================
+# Node.js / Script Tooling (Mutation & Compliance Scripts)
+# =============================================================================
 node_modules/
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Secrets & Local Config
+# =============================================================================
+# Secrets, Environment & Local Configuration
+# =============================================================================
 appsettings.Development.json
 appsettings.Local.json
 secrets.json
+*.local.json
+.env
+.env.local
+.env.*.local
 
-# OS files
+# =============================================================================
+# Operating System Files
+# =============================================================================
 .DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
+ehthumbs.db
 [Dd]esktop.ini

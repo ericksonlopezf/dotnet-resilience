@@ -16,7 +16,7 @@ namespace EricksonLopez.Resilience.Benchmarks;
 
 [MemoryDiagnoser]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
-public sealed class ResilienceExecutionBenchmarks
+public class ResilienceExecutionBenchmarks
 {
     private const string PolicyName = "benchmark-policy";
 

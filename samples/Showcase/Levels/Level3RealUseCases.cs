@@ -13,12 +13,16 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 3 — Real-World Use Cases: Production Scenarios with Result Pattern Integration and Deterministic Classification.
+/// Provides real-world use case demonstrations illustrating production scenarios with Result pattern integration and deterministic classification.
 /// </summary>
 public static class Level3RealUseCases
 {
     private const string PaymentGatewayPolicy = "payment-gateway";
 
+    /// <summary>
+    /// Executes the real-world use cases demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunAsync()
     {
         Console.WriteLine("================================================================================");

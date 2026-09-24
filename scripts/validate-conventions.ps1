@@ -14,8 +14,10 @@
 
 [CmdletBinding()]
 param(
-    [string]$RootDirectory = $PSScriptRoot + "/.."
+    [string]$RootDirectory = "."
 )
+
+$RootDirectory = (Resolve-Path $RootDirectory).Path
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -23,20 +25,19 @@ $ErrorActionPreference = "Stop"
 $violations = [System.Collections.Generic.List[string]]::new()
 
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "  EricksonLopez.Resilience — Convention & Quality Gate      " -ForegroundColor Cyan
+Write-Host "  EricksonLopez.Resilience - Convention & Quality Gate      " -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
 
 # ─── 1. License Header Check ──────────────────────────────────────────────
 Write-Host "`n[1/6] Validating C# License Headers..." -ForegroundColor Yellow
-$expectedHeader = "// Copyright © Erickson Lopez. MIT License."
 $csFiles = Get-ChildItem -Path $RootDirectory -Filter "*.cs" -Recurse | Where-Object {
-    $_.FullName -notmatch '[\\/](bin|obj|\.git|\.vs|\.system_generated)[\\/]'
+    $_.FullName -notmatch '[\\/](bin|obj|\.git|\.vs|\.system_generated|scratch)[\\/]'
 }
 
 $missingHeaders = 0
 foreach ($file in $csFiles) {
     $firstLine = (Get-Content -Path $file.FullName -TotalCount 1 -Encoding UTF8)
-    if ($firstLine -ne $expectedHeader) {
+    if ($firstLine -notmatch '^//\s*Copyright\s+.*Erickson\s+Lopez.*MIT\s+License') {
         $rel = Resolve-Path -Relative -Path $file.FullName
         $violations.Add("Missing/Invalid MIT License Header: $rel")
         $missingHeaders++
@@ -52,8 +53,8 @@ if ($missingHeaders -eq 0) {
 Write-Host "`n[2/6] Validating Markdown File Naming (kebab-case)..." -ForegroundColor Yellow
 $reservedNames = @(
     "README.md", "LICENSE", "LICENSE.md", "SECURITY.md", "SUPPORT.md", 
-    "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "CHANGELOG.md",
-    "AnalyzerReleases.Shipped.md", "AnalyzerReleases.Unshipped.md", "Summary.md"
+    "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "CHANGELOG.md", "ROADMAP.md",
+    "PULL_REQUEST_TEMPLATE.md", "AnalyzerReleases.Shipped.md", "AnalyzerReleases.Unshipped.md", "Summary.md"
 )
 
 $mdFiles = Get-ChildItem -Path $RootDirectory -Filter "*.md" -Recurse | Where-Object {

@@ -10,6 +10,13 @@ namespace EricksonLopez.Resilience.Options;
 public sealed class RetryStrategyOptions : ResilienceStrategyOptions
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="RetryStrategyOptions"/> class with default settings.
+    /// </summary>
+    public RetryStrategyOptions()
+    {
+    }
+
+    /// <summary>
     /// Gets or sets the maximum number of retry attempts allowed before failing the execution.
     /// Default is 3 attempts.
     /// </summary>

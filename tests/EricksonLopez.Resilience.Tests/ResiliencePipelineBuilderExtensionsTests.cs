@@ -227,4 +227,72 @@ public sealed class ResiliencePipelineBuilderExtensionsTests
         retry.ShouldHandleException!(ex).Should().BeTrue();
         mockClassifier.Received(1).ClassifyException(ex);
     }
+
+    [Fact]
+    public void AddDatabaseResilience_Untyped_ConfiguresStrategiesCorrectly()
+    {
+        IResiliencePipelineBuilder nullBuilder = null!;
+        var actNull = () => nullBuilder.AddDatabaseResilience();
+        actNull.Should().Throw<ArgumentNullException>();
+
+        // Default parameters
+        var defaultBuilder = new ResiliencePipelineBuilder("db-default");
+        var returnedDefault = defaultBuilder.AddDatabaseResilience();
+        returnedDefault.Should().BeSameAs(defaultBuilder);
+        defaultBuilder.Strategies.Should().HaveCount(2);
+
+        var timeoutOpt = defaultBuilder.Strategies[0].Should().BeOfType<TimeoutStrategyOptions>().Which;
+        timeoutOpt.Timeout.Should().Be(TimeSpan.FromSeconds(15));
+
+        var retryOpt = defaultBuilder.Strategies[1].Should().BeOfType<RetryStrategyOptions>().Which;
+        retryOpt.MaxRetryAttempts.Should().Be(3);
+        retryOpt.Delay.Should().Be(TimeSpan.FromMilliseconds(200));
+        retryOpt.BackoffType.Should().Be(BackoffType.ExponentialWithJitter);
+        retryOpt.MaxDelay.Should().Be(TimeSpan.FromSeconds(2));
+
+        // Custom parameters
+        var customBuilder = new ResiliencePipelineBuilder("db-custom");
+        customBuilder.AddDatabaseResilience(TimeSpan.FromSeconds(25), maxRetries: 5);
+        customBuilder.Strategies.Should().HaveCount(2);
+
+        var customTimeout = customBuilder.Strategies[0].Should().BeOfType<TimeoutStrategyOptions>().Which;
+        customTimeout.Timeout.Should().Be(TimeSpan.FromSeconds(25));
+
+        var customRetry = customBuilder.Strategies[1].Should().BeOfType<RetryStrategyOptions>().Which;
+        customRetry.MaxRetryAttempts.Should().Be(5);
+    }
+
+    [Fact]
+    public void AddDatabaseResilience_Typed_ConfiguresStrategiesCorrectly()
+    {
+        ResiliencePipelineBuilder<string> nullBuilder = null!;
+        var actNull = () => nullBuilder.AddDatabaseResilience();
+        actNull.Should().Throw<ArgumentNullException>();
+
+        // Default parameters
+        var defaultBuilder = new ResiliencePipelineBuilder<string>("db-typed-default");
+        var returnedDefault = defaultBuilder.AddDatabaseResilience();
+        returnedDefault.Should().BeSameAs(defaultBuilder);
+        defaultBuilder.Strategies.Should().HaveCount(2);
+
+        var timeoutOpt = defaultBuilder.Strategies[0].Should().BeOfType<TimeoutStrategyOptions>().Which;
+        timeoutOpt.Timeout.Should().Be(TimeSpan.FromSeconds(15));
+
+        var retryOpt = defaultBuilder.Strategies[1].Should().BeOfType<RetryStrategyOptions>().Which;
+        retryOpt.MaxRetryAttempts.Should().Be(3);
+        retryOpt.Delay.Should().Be(TimeSpan.FromMilliseconds(200));
+        retryOpt.BackoffType.Should().Be(BackoffType.ExponentialWithJitter);
+        retryOpt.MaxDelay.Should().Be(TimeSpan.FromSeconds(2));
+
+        // Custom parameters
+        var customBuilder = new ResiliencePipelineBuilder<string>("db-typed-custom");
+        customBuilder.AddDatabaseResilience(TimeSpan.FromSeconds(40), maxRetries: 6);
+        customBuilder.Strategies.Should().HaveCount(2);
+
+        var customTimeout = customBuilder.Strategies[0].Should().BeOfType<TimeoutStrategyOptions>().Which;
+        customTimeout.Timeout.Should().Be(TimeSpan.FromSeconds(40));
+
+        var customRetry = customBuilder.Strategies[1].Should().BeOfType<RetryStrategyOptions>().Which;
+        customRetry.MaxRetryAttempts.Should().Be(6);
+    }
 }

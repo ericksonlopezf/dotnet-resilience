@@ -11,12 +11,16 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 5 — Processing: Background Processing, Quota/Concurrency Limits, Cancellation, and Multi-Tenant Isolation.
+/// Provides processing demonstrations illustrating background worker execution, quota and concurrency limits, cancellation, and multi-tenant isolation.
 /// </summary>
 public static class Level5Processing
 {
     private const string WorkerPolicyName = "background-worker-policy";
 
+    /// <summary>
+    /// Executes the background processing resilience demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunAsync()
     {
         Console.WriteLine("================================================================================");

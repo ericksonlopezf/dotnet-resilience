@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Description>ASP.NET Core and HttpClient resilience handler integration for the EricksonLopez ecosystem.</Description>
-    <PackageTags>$(CommonPackageTags);aspnetcore;asp-net-core;httpclient;delegating-handler;http;middleware</PackageTags>
+    <PackageTags>$(CommonPackageTags);aspnetcore;httpclient;delegating-handler;http;health-checks;minimal-apis</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,7 +1,6 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
 using System.Collections.Generic;
-using EricksonLopez.Resilience.Policies;
 
 namespace EricksonLopez.Resilience.DependencyInjection;
 
@@ -10,6 +9,13 @@ namespace EricksonLopez.Resilience.DependencyInjection;
 /// </summary>
 public sealed class ResilienceOptions
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ResilienceOptions"/> class.
+    /// </summary>
+    public ResilienceOptions()
+    {
+    }
+
     internal List<NamedPolicyRegistration> NamedRegistrations { get; } = new();
 
     /// <summary>

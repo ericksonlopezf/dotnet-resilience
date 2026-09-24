@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Description>Dependency injection extensions and configuration registration for EricksonLopez.Resilience.</Description>
-    <PackageTags>$(CommonPackageTags);dependency-injection;di;service-collection;configuration;options-pattern</PackageTags>
+    <PackageTags>$(CommonPackageTags);dependency-injection;service-collection;configuration;options-pattern</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

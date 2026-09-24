@@ -53,7 +53,7 @@ public static class ResilienceServiceCollectionExtensions
             foreach (var named in sp.GetServices<NamedPolicyRegistration>())
             {
                 var builder = new ResiliencePipelineBuilder(named.Name);
-                named.Configure(builder);
+                named.Configure(builder, sp);
                 var pipeline = builder.Build();
                 registry.Register(named.Name, pipeline);
             }
@@ -92,11 +92,11 @@ public static class ResilienceServiceCollectionExtensions
     /// <param name="services">The service collection.</param>
     /// <returns>The service collection for method chaining.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="services"/> is <see langword="null"/></exception>
-    public static IServiceCollection AddResiliencePolicy<TPolicy>(this IServiceCollection services)
-        where TPolicy : class, IResiliencePolicy, new()
+    public static IServiceCollection AddResiliencePolicy<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)] TPolicy>(this IServiceCollection services)
+        where TPolicy : class, IResiliencePolicy
     {
         services.AddEricksonLopezResilience();
-        services.AddSingleton<IResiliencePolicy>(new TPolicy());
+        services.AddSingleton<IResiliencePolicy, TPolicy>();
 
         return services;
     }
@@ -114,6 +114,29 @@ public static class ResilienceServiceCollectionExtensions
         this IServiceCollection services,
         string policyName,
         Action<IResiliencePipelineBuilder> configure)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
+        ArgumentNullException.ThrowIfNull(configure);
+
+        services.AddEricksonLopezResilience();
+        services.AddSingleton(new NamedPolicyRegistration(policyName, configure));
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers a named resilience policy configured via an action delegate providing access to <see cref="IServiceProvider"/> and compiles it into the runtime pipeline registry.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="policyName">The unique policy name.</param>
+    /// <param name="configure">The builder configuration action that provides <see cref="IServiceProvider"/>.</param>
+    /// <returns>The service collection for method chaining.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="services"/> or <paramref name="configure"/> is <see langword="null"/></exception>
+    /// <exception cref="ArgumentException"><paramref name="policyName"/> is <see langword="null"/> or whitespace</exception>
+    public static IServiceCollection AddResiliencePolicy(
+        this IServiceCollection services,
+        string policyName,
+        Action<IResiliencePipelineBuilder, IServiceProvider> configure)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
         ArgumentNullException.ThrowIfNull(configure);

@@ -690,6 +690,59 @@ public sealed class PollyResilienceExecutorTests
             e.Message.Contains("Executing resilient operation ProcessJob with policy void-none-policy (Tenant: None, Correlation: None)"));
     }
 
+    [Fact]
+    public async Task ExecuteAsync_OnFailure_WithActiveActivityAndCircuitBrokenException_SetsActivityErrorAndRecordsTelemetry()
+    {
+        var pipeline = PollyPipelineBuilderTranslator.TranslateAndBuild(new EcoBuilder("test-circuit-policy"));
+        var registry = new ResiliencePipelineRegistry();
+        registry.Register("test-circuit-policy", pipeline);
+        var executor = new PollyResilienceExecutor(registry);
+
+        Activity? capturedActivity = null;
+        using var activityListener = new ActivityListener
+        {
+            ShouldListenTo = s => s.Name == "EricksonLopez.Resilience",
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
+            ActivityStarted = a => capturedActivity = a
+        };
+        ActivitySource.AddActivityListener(activityListener);
+
+        long cbRejections = 0;
+        using var meterListener = new MeterListener();
+        meterListener.InstrumentPublished = (instrument, listener) =>
+        {
+            if (instrument.Meter.Name == "EricksonLopez.Resilience" && instrument.Name == "resilience.circuit_breaker.rejections")
+            {
+                listener.EnableMeasurementEvents(instrument);
+            }
+        };
+        meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
+        {
+            Interlocked.Add(ref cbRejections, measurement);
+        });
+        meterListener.Start();
+
+        var context = ResilienceContext.Create("test-circuit-policy")
+            .WithOperationName("ExecuteWithCircuitBreaker")
+            .WithTenantId("tenant-123");
+
+        var act = async () => await executor.ExecuteAsync<string>("test-circuit-policy", async _ =>
+        {
+            await Task.Yield();
+            throw new CircuitBrokenException("Circuit is open", TimeSpan.FromSeconds(5));
+        }, context);
+
+        var thrown = await act.Should().ThrowAsync<CircuitBrokenException>();
+
+        capturedActivity.Should().NotBeNull();
+        capturedActivity!.Status.Should().Be(ActivityStatusCode.Error);
+        capturedActivity.StatusDescription.Should().Be(thrown.Which.Message);
+        capturedActivity.Events.Should().Contain(e => e.Name == "exception");
+
+        meterListener.RecordObservableInstruments();
+        cbRejections.Should().Be(1);
+    }
+
     private sealed class SpyResilienceLogger : ILogger<PollyResilienceExecutor>
     {
         private readonly LogLevel _minLevel;

@@ -34,4 +34,16 @@ services.AddResiliencePolicy("third-party-api", builder =>
         .AddRetry(opt => opt.MaxRetryAttempts = 3)
         .AddTimeout(TimeSpan.FromSeconds(5));
 });
+
+// 4. Register Inline Policy with IServiceProvider Access
+services.AddResiliencePolicy("dynamic-partner-api", (builder, sp) =>
+{
+    var options = sp.GetRequiredService<IOptions<PartnerApiOptions>>().Value;
+    builder
+        .AddRetry(opt => opt.MaxRetryAttempts = options.MaxRetries)
+        .AddTimeout(options.Timeout);
+});
+
+// 5. Register Policy from IConfigurationSection (Reflection-Free)
+services.AddResiliencePolicyFromConfiguration("payments-api", configuration.GetSection("Resilience:Payments"));
 ```

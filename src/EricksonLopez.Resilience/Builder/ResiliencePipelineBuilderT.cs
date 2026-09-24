@@ -3,12 +3,11 @@ using System;
 using System.Collections.Generic;
 using EricksonLopez.Resilience.Exceptions;
 using EricksonLopez.Resilience.Options;
-using EricksonLopez.Resilience.Pipelines;
 
 namespace EricksonLopez.Resilience.Builder;
 
 /// <summary>
-/// Implements a strongly-typed resilience pipeline builder for accumulating, configuring, and compiling typed resilience strategies.
+/// Provides a strongly-typed resilience pipeline builder for accumulating, configuring, and compiling typed resilience strategies.
 /// </summary>
 /// <typeparam name="TResult">The result type returned by resilient operations executed through this pipeline.</typeparam>
 public sealed class ResiliencePipelineBuilder<TResult>
@@ -218,6 +217,7 @@ public sealed class ResiliencePipelineBuilder<TResult>
     /// Compiles the configured strategies into an executable <see cref="IResiliencePipeline{TResult}"/>.
     /// </summary>
     /// <returns>The compiled typed resilience pipeline.</returns>
+    /// <exception cref="InvalidOperationException">No typed pipeline compilation factory has been registered for <typeparamref name="TResult"/></exception>
     public IResiliencePipeline<TResult> Build()
     {
         return ResiliencePipelineBuilder.CompileTyped(this);

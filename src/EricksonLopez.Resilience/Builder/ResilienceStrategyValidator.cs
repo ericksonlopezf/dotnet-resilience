@@ -27,7 +27,7 @@ internal static class ResilienceStrategyValidator
 
     public static void ValidateCircuitBreakerOptions(CircuitBreakerStrategyOptions options)
     {
-        if (options.FailureRatio is <= 0.0 or > 1.0)
+        if (double.IsNaN(options.FailureRatio) || double.IsInfinity(options.FailureRatio) || options.FailureRatio is <= 0.0 or > 1.0)
         {
             throw new ResilienceConfigurationException("CircuitBreaker FailureRatio must be greater than 0.0 and less than or equal to 1.0.");
         }
@@ -42,9 +42,9 @@ internal static class ResilienceStrategyValidator
             throw new ResilienceConfigurationException("CircuitBreaker SamplingDuration must be greater than TimeSpan.Zero.");
         }
 
-        if (options.BreakDuration <= TimeSpan.Zero)
+        if (options.BreakDuration < TimeSpan.FromMilliseconds(500))
         {
-            throw new ResilienceConfigurationException("CircuitBreaker BreakDuration must be greater than TimeSpan.Zero.");
+            throw new ResilienceConfigurationException("CircuitBreaker BreakDuration must be greater than or equal to 500 milliseconds.");
         }
     }
 

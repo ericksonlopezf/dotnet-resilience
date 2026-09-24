@@ -130,6 +130,33 @@ public static class ResiliencePipelineBuilderExtensions
     }
 
     /// <summary>
+    /// Adds a database resilience preset optimized for transient connection drops and transient serialization failures to a typed pipeline.
+    /// </summary>
+    /// <typeparam name="TResult">The result type of the pipeline.</typeparam>
+    /// <param name="builder">The pipeline builder.</param>
+    /// <param name="timeout">The optional overall execution timeout duration.</param>
+    /// <param name="maxRetries">The maximum number of retry attempts.</param>
+    /// <returns>The pipeline builder for method chaining.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <see langword="null"/></exception>
+    public static ResiliencePipelineBuilder<TResult> AddDatabaseResilience<TResult>(
+        this ResiliencePipelineBuilder<TResult> builder,
+        TimeSpan? timeout = null,
+        int maxRetries = 3)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        return builder
+            .AddTimeout(timeout ?? TimeSpan.FromSeconds(15))
+            .AddResultRetry(opt =>
+            {
+                opt.MaxRetryAttempts = maxRetries;
+                opt.Delay = TimeSpan.FromMilliseconds(200);
+                opt.BackoffType = BackoffType.ExponentialWithJitter;
+                opt.MaxDelay = TimeSpan.FromSeconds(2);
+            });
+    }
+
+    /// <summary>
     /// Adds a timeout strategy to the pipeline with the specified timeout duration.
     /// </summary>
     /// <param name="builder">The pipeline builder.</param>
