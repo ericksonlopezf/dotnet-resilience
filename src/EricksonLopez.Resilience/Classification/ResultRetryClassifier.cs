@@ -1,10 +1,9 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
 using System.Net.Sockets;
-using System.Threading;
-using EricksonLopez.Resilience.Classification;
 using EricksonLopez.Result;
 
 namespace EricksonLopez.Resilience.Classification;
@@ -15,6 +14,13 @@ namespace EricksonLopez.Resilience.Classification;
 /// </summary>
 public sealed class ResultRetryClassifier : IResultRetryClassifier, IErrorClassifier
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ResultRetryClassifier"/> class.
+    /// </summary>
+    public ResultRetryClassifier()
+    {
+    }
+
     /// <summary>
     /// Gets the shared singleton instance of the default <see cref="ResultRetryClassifier"/>.
     /// </summary>
@@ -81,8 +87,9 @@ public sealed class ResultRetryClassifier : IResultRetryClassifier, IErrorClassi
             return RetryabilityDecision.DoNotRetry;
         }
 
-        // Framework timeout is transient and retryable if configured
-        if (exception is Exceptions.ResilienceTimeoutException or TimeoutException)
+        // Framework timeout or Polly TimeoutRejectedException is transient and retryable if configured
+        if (exception is Exceptions.ResilienceTimeoutException or TimeoutException
+            || exception.GetType().Name == "TimeoutRejectedException")
         {
             return RetryabilityDecision.Retry;
         }
@@ -91,6 +98,12 @@ public sealed class ResultRetryClassifier : IResultRetryClassifier, IErrorClassi
         if (exception is OperationCanceledException)
         {
             return RetryabilityDecision.DoNotRetry;
+        }
+
+        // Database deadlocks and transient connection drops (SQL Server 1205, Postgres 40P01, MySQL 1213)
+        if (IsDatabaseDeadlockOrTransient(exception))
+        {
+            return RetryabilityDecision.Retry;
         }
 
         // Socket and network I/O failures are transient
@@ -123,5 +136,49 @@ public sealed class ResultRetryClassifier : IResultRetryClassifier, IErrorClassi
         }
 
         return RetryabilityDecision.Undetermined;
+    }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Reflection on optional database exception properties Number and SqlState is best-effort and safe.")]
+    private static bool IsDatabaseDeadlockOrTransient(Exception exception)
+    {
+        for (var current = exception; current != null; current = current.InnerException)
+        {
+            var typeName = current.GetType().Name;
+            if (typeName == "SqlException")
+            {
+                var numberProp = current.GetType().GetProperty("Number");
+                if (numberProp != null && numberProp.GetValue(current) is int number)
+                {
+                    if (number is 1205 or 3960 or 10053 or 10054 or 10060 or 40613 or 40197 or 40501)
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (typeName is "NpgsqlException" or "PostgresException")
+            {
+                var sqlStateProp = current.GetType().GetProperty("SqlState");
+                if (sqlStateProp != null && sqlStateProp.GetValue(current) is string sqlState)
+                {
+                    if (sqlState is "40P01" or "40001" or "08000" or "08003" or "08006" or "57P01")
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (typeName == "MySqlException")
+            {
+                var numberProp = current.GetType().GetProperty("Number");
+                if (numberProp != null && numberProp.GetValue(current) is int number)
+                {
+                    if (number is 1213 or 1205)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

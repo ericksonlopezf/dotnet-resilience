@@ -10,6 +10,13 @@ namespace EricksonLopez.Resilience.Options;
 public sealed class RateLimiterStrategyOptions : ResilienceStrategyOptions
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="RateLimiterStrategyOptions"/> class with default settings.
+    /// </summary>
+    public RateLimiterStrategyOptions()
+    {
+    }
+
+    /// <summary>
     /// Gets or sets the maximum number of permits allowed within the given window.
     /// Default is 100 permits.
     /// </summary>

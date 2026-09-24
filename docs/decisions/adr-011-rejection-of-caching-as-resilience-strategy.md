@@ -1,7 +1,10 @@
 # ADR-011: Rejection of Caching as a Resilience Strategy
 
 ## Status
-**Rejected**
+Rejected
+
+## Date
+2026-09-04
 
 ## Context
 During product strategy analysis, caching was considered as a potential resilience strategy — specifically, a "CacheStrategy" or "StaleWhileRevalidate" that would return a cached value on failure instead of propagating the error. This pattern is sometimes conflated with graceful degradation via fallback.

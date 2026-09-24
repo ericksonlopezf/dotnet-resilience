@@ -11,8 +11,18 @@ using Xunit;
 namespace EricksonLopez.Resilience.OpenTelemetry.Tests;
 
 [Collection("OpenTelemetryTests")]
-public sealed class ResilienceMeterTests
+public sealed class ResilienceMeterTests : IDisposable
 {
+    public ResilienceMeterTests()
+    {
+        ResilienceMeter.IncludeTenantIdTag = true;
+    }
+
+    public void Dispose()
+    {
+        ResilienceMeter.IncludeTenantIdTag = false;
+    }
+
     private sealed class CapturedMeasurement<T>
     {
         public string InstrumentName { get; init; } = string.Empty;
@@ -25,7 +35,7 @@ public sealed class ResilienceMeterTests
     {
         // Assert
         ResilienceMeter.MeterName.Should().Be("EricksonLopez.Resilience");
-        ResilienceMeter.MeterVersion.Should().Be("1.0.0");
+        ResilienceMeter.MeterVersion.Should().Be("2.0.0");
     }
 
     [Fact]
@@ -57,6 +67,9 @@ public sealed class ResilienceMeterTests
 
         instruments.Should().ContainKey("resilience.rate_limiter.rejections");
         instruments["resilience.rate_limiter.rejections"].Should().Be(("{rejection}", "Number of operations rejected due to rate limiting."));
+
+        instruments.Should().ContainKey("resilience.circuit_breaker.rejections");
+        instruments["resilience.circuit_breaker.rejections"].Should().Be(("{rejection}", "Number of operations rejected due to open circuit breaker."));
     }
 
     [Fact]
@@ -357,6 +370,147 @@ public sealed class ResilienceMeterTests
         else
         {
             item.Tags.ContainsKey("resilience.tenant_id").Should().BeFalse();
+        }
+    }
+
+    [Fact]
+    public void RecordExecution_WhenIncludeTenantIdTagIsFalse_OmitsTenantTag()
+    {
+        ResilienceMeter.IncludeTenantIdTag = false;
+        try
+        {
+            var captured = new List<CapturedMeasurement<double>>();
+            using var meterListener = new MeterListener();
+            meterListener.InstrumentPublished = (instrument, listener) =>
+            {
+                if (instrument.Meter.Name == ResilienceMeter.MeterName)
+                {
+                    listener.EnableMeasurementEvents(instrument);
+                }
+            };
+            meterListener.SetMeasurementEventCallback<double>((instrument, measurement, tags, state) =>
+            {
+                var dict = new Dictionary<string, object?>();
+                foreach (var tag in tags)
+                {
+                    dict[tag.Key] = tag.Value;
+                }
+                captured.Add(new CapturedMeasurement<double>
+                {
+                    InstrumentName = instrument.Name,
+                    Value = measurement,
+                    Tags = dict
+                });
+            });
+            meterListener.Start();
+
+            ResilienceMeter.RecordExecution("guarded-policy", "Execute", 10.0, isSuccess: true, tenantId: "tenant-cardinality-risk");
+
+            meterListener.RecordObservableInstruments();
+            var item = captured.FirstOrDefault(c => c.InstrumentName == "resilience.execution.duration");
+            item.Should().NotBeNull();
+            item!.Tags.ContainsKey("resilience.tenant_id").Should().BeFalse();
+        }
+        finally
+        {
+            ResilienceMeter.IncludeTenantIdTag = true;
+        }
+    }
+
+    [Theory]
+    [InlineData("tenant-99", true)]
+    [InlineData(null, false)]
+    [InlineData("", false)]
+    public void RecordCircuitBreakerRejection_RecordsCounterMeasurementAndTags(string? tenantId, bool hasTenantTag)
+    {
+        // Arrange
+        var captured = new List<CapturedMeasurement<long>>();
+        using var meterListener = new MeterListener();
+        meterListener.InstrumentPublished = (instrument, listener) =>
+        {
+            if (instrument.Meter.Name == ResilienceMeter.MeterName)
+            {
+                listener.EnableMeasurementEvents(instrument);
+            }
+        };
+        meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
+        {
+            var dict = new Dictionary<string, object?>();
+            foreach (var tag in tags)
+            {
+                dict[tag.Key] = tag.Value;
+            }
+            captured.Add(new CapturedMeasurement<long>
+            {
+                InstrumentName = instrument.Name,
+                Value = measurement,
+                Tags = dict
+            });
+        });
+        meterListener.Start();
+
+        // Act
+        ResilienceMeter.RecordCircuitBreakerRejection("cb-policy", "QueryService", tenantId: tenantId);
+
+        // Assert
+        meterListener.RecordObservableInstruments();
+        var item = captured.FirstOrDefault(c => c.InstrumentName == "resilience.circuit_breaker.rejections" && Equals(c.Tags.GetValueOrDefault("resilience.policy"), "cb-policy"));
+        item.Should().NotBeNull();
+        item!.Value.Should().Be(1);
+        item.Tags["resilience.policy"].Should().Be("cb-policy");
+        item.Tags["resilience.operation"].Should().Be("QueryService");
+
+        if (hasTenantTag)
+        {
+            item.Tags["resilience.tenant_id"].Should().Be(tenantId);
+        }
+        else
+        {
+            item.Tags.ContainsKey("resilience.tenant_id").Should().BeFalse();
+        }
+    }
+
+    [Fact]
+    public void RecordCircuitBreakerRejection_WhenIncludeTenantIdTagIsFalse_OmitsTenantTag()
+    {
+        ResilienceMeter.IncludeTenantIdTag = false;
+        try
+        {
+            var captured = new List<CapturedMeasurement<long>>();
+            using var meterListener = new MeterListener();
+            meterListener.InstrumentPublished = (instrument, listener) =>
+            {
+                if (instrument.Meter.Name == ResilienceMeter.MeterName)
+                {
+                    listener.EnableMeasurementEvents(instrument);
+                }
+            };
+            meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
+            {
+                var dict = new Dictionary<string, object?>();
+                foreach (var tag in tags)
+                {
+                    dict[tag.Key] = tag.Value;
+                }
+                captured.Add(new CapturedMeasurement<long>
+                {
+                    InstrumentName = instrument.Name,
+                    Value = measurement,
+                    Tags = dict
+                });
+            });
+            meterListener.Start();
+
+            ResilienceMeter.RecordCircuitBreakerRejection("cb-policy", "QueryService", tenantId: "tenant-cardinality-risk");
+
+            meterListener.RecordObservableInstruments();
+            var item = captured.FirstOrDefault(c => c.InstrumentName == "resilience.circuit_breaker.rejections");
+            item.Should().NotBeNull();
+            item!.Tags.ContainsKey("resilience.tenant_id").Should().BeFalse();
+        }
+        finally
+        {
+            ResilienceMeter.IncludeTenantIdTag = true;
         }
     }
 }

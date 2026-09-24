@@ -2,8 +2,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EricksonLopez.Resilience.Exceptions;
-using global::Polly;
 using global::Polly.CircuitBreaker;
 using global::Polly.RateLimiting;
 using global::Polly.Timeout;
@@ -11,7 +9,7 @@ using global::Polly.Timeout;
 namespace EricksonLopez.Resilience.Polly.Adapters;
 
 /// <summary>
-/// Implements <see cref="IResiliencePipeline"/> backed by a compiled Polly v8 <see cref="global::Polly.ResiliencePipeline"/>.
+/// Provides an <see cref="IResiliencePipeline"/> implementation backed by a compiled Polly v8 <see cref="global::Polly.ResiliencePipeline"/>.
 /// </summary>
 public sealed class PollyResiliencePipeline : IResiliencePipeline
 {
@@ -51,24 +49,41 @@ public sealed class PollyResiliencePipeline : IResiliencePipeline
             context.OperationName,
             context.CorrelationId,
             context.TenantId,
-            effectiveToken);
+            effectiveToken)
+        {
+            AttemptNumber = context.AttemptNumber
+        };
+        context.CopyPropertiesTo(initialContext);
 
         var pollyContext = PollyContextAdapter.ToPollyContext(initialContext);
         try
         {
+            var stateTuple = (initialContext, context, operation);
             return await _pipeline.ExecuteAsync(
-                async (pCtx, state) =>
+                new Func<global::Polly.ResilienceContext, (ResilienceContext initialContext, ResilienceContext context, Func<ResilienceContext, ValueTask<TResult>> operation), ValueTask<TResult>>(
+                async static (pCtx, state) =>
                 {
+                    var ecoCtx = PollyContextAdapter.GetEcosystemContext(pCtx) ?? state.initialContext;
                     var executionContext = new ResilienceContext(
-                        context.PolicyName,
-                        context.OperationName,
-                        context.CorrelationId,
-                        context.TenantId,
-                        pCtx.CancellationToken);
-                    return await state(executionContext).ConfigureAwait(false);
-                },
+                        state.context.PolicyName,
+                        state.context.OperationName,
+                        state.context.CorrelationId,
+                        state.context.TenantId,
+                        pCtx.CancellationToken)
+                    {
+                        AttemptNumber = ecoCtx.AttemptNumber
+                    };
+                    ecoCtx.CopyPropertiesTo(executionContext);
+
+                    var result = await state.operation(executionContext).ConfigureAwait(false);
+
+                    executionContext.CopyPropertiesTo(ecoCtx);
+                    executionContext.CopyPropertiesTo(state.context);
+                    state.context.AttemptNumber = executionContext.AttemptNumber;
+                    return result;
+                }),
                 pollyContext,
-                operation).ConfigureAwait(false);
+                stateTuple).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is TimeoutRejectedException or IsolatedCircuitException or BrokenCircuitException or RateLimiterRejectedException)
         {
@@ -105,24 +120,40 @@ public sealed class PollyResiliencePipeline : IResiliencePipeline
             context.OperationName,
             context.CorrelationId,
             context.TenantId,
-            effectiveToken);
+            effectiveToken)
+        {
+            AttemptNumber = context.AttemptNumber
+        };
+        context.CopyPropertiesTo(initialContext);
 
         var pollyContext = PollyContextAdapter.ToPollyContext(initialContext);
         try
         {
+            var stateTuple = (initialContext, context, operation);
             await _pipeline.ExecuteAsync(
-                async (pCtx, state) =>
+                new Func<global::Polly.ResilienceContext, (ResilienceContext initialContext, ResilienceContext context, Func<ResilienceContext, ValueTask> operation), ValueTask>(
+                async static (pCtx, state) =>
                 {
+                    var ecoCtx = PollyContextAdapter.GetEcosystemContext(pCtx) ?? state.initialContext;
                     var executionContext = new ResilienceContext(
-                        context.PolicyName,
-                        context.OperationName,
-                        context.CorrelationId,
-                        context.TenantId,
-                        pCtx.CancellationToken);
-                    await state(executionContext).ConfigureAwait(false);
-                },
+                        state.context.PolicyName,
+                        state.context.OperationName,
+                        state.context.CorrelationId,
+                        state.context.TenantId,
+                        pCtx.CancellationToken)
+                    {
+                        AttemptNumber = ecoCtx.AttemptNumber
+                    };
+                    ecoCtx.CopyPropertiesTo(executionContext);
+
+                    await state.operation(executionContext).ConfigureAwait(false);
+
+                    executionContext.CopyPropertiesTo(ecoCtx);
+                    executionContext.CopyPropertiesTo(state.context);
+                    state.context.AttemptNumber = executionContext.AttemptNumber;
+                }),
                 pollyContext,
-                operation).ConfigureAwait(false);
+                stateTuple).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is TimeoutRejectedException or IsolatedCircuitException or BrokenCircuitException or RateLimiterRejectedException)
         {

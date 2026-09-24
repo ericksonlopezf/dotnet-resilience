@@ -15,7 +15,7 @@ public sealed class ResilienceActivitySourceTests
     {
         // Assert
         ResilienceActivitySource.SourceName.Should().Be("EricksonLopez.Resilience");
-        ResilienceActivitySource.SourceVersion.Should().Be("1.0.0");
+        ResilienceActivitySource.SourceVersion.Should().Be("2.0.0");
     }
 
     [Fact]
@@ -75,5 +75,99 @@ public sealed class ResilienceActivitySourceTests
         activity.GetTagItem("resilience.operation").Should().Be("save-entity");
         activity.GetTagItem("resilience.tenant_id").Should().BeNull();
         activity.GetTagItem("resilience.correlation_id").Should().BeNull();
+    }
+
+    [Fact]
+    public void RecordException_WhenActivityOrExceptionIsNull_DoesNotThrow()
+    {
+        // Act & Assert
+        Action act1 = () => ResilienceActivitySource.RecordException(null, new InvalidOperationException("Boom"));
+        act1.Should().NotThrow();
+
+        using var activity = new Activity("TestActivity");
+        Action act2 = () => ResilienceActivitySource.RecordException(activity, null!);
+        act2.Should().NotThrow();
+        activity.Status.Should().Be(ActivityStatusCode.Unset);
+        activity.Events.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void RecordException_WithoutSanitizer_RecordsExceptionDetailsAndStatus()
+    {
+        // Arrange
+        using var listener = new ActivityListener
+        {
+            ShouldListenTo = s => s.Name == ResilienceActivitySource.SourceName,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData
+        };
+        ActivitySource.AddActivityListener(listener);
+
+        using var activity = ResilienceActivitySource.StartExecutionActivity("error-policy", "execute-op");
+        activity.Should().NotBeNull();
+
+        var exception = new InvalidOperationException("Fatal database deadlock");
+
+        // Act
+        ResilienceActivitySource.RecordException(activity, exception);
+
+        // Assert
+        activity!.Status.Should().Be(ActivityStatusCode.Error);
+        activity.StatusDescription.Should().Be("Fatal database deadlock");
+
+        var evt = activity.Events.Should().ContainSingle().Subject;
+        evt.Name.Should().Be("exception");
+
+        var tagsDict = new Dictionary<string, object?>();
+        foreach (var tag in evt.Tags)
+        {
+            tagsDict[tag.Key] = tag.Value;
+        }
+
+        tagsDict["exception.type"].Should().Be(typeof(InvalidOperationException).FullName);
+        tagsDict["exception.message"].Should().Be("Fatal database deadlock");
+        tagsDict["exception.stacktrace"].Should().NotBeNull();
+    }
+
+    [Fact]
+    public void RecordException_WithCustomExceptionSanitizer_AppliesSanitization()
+    {
+        // Arrange
+        using var listener = new ActivityListener
+        {
+            ShouldListenTo = s => s.Name == ResilienceActivitySource.SourceName,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData
+        };
+        ActivitySource.AddActivityListener(listener);
+
+        using var activity = ResilienceActivitySource.StartExecutionActivity("sanitized-policy", "secure-op");
+        activity.Should().NotBeNull();
+
+        var exception = new ArgumentException("Sensitive token: 12345");
+
+        try
+        {
+            ResilienceActivitySource.ExceptionSanitizer = ex => ($"[REDACTED] {ex.GetType().Name}", "SafeStack");
+
+            // Act
+            ResilienceActivitySource.RecordException(activity, exception);
+
+            // Assert
+            activity!.Status.Should().Be(ActivityStatusCode.Error);
+            activity.StatusDescription.Should().Be("[REDACTED] ArgumentException");
+
+            var evt = activity.Events.Should().ContainSingle().Subject;
+            var tagsDict = new Dictionary<string, object?>();
+            foreach (var tag in evt.Tags)
+            {
+                tagsDict[tag.Key] = tag.Value;
+            }
+
+            tagsDict["exception.message"].Should().Be("[REDACTED] ArgumentException");
+            tagsDict["exception.stacktrace"].Should().Be("SafeStack");
+        }
+        finally
+        {
+            ResilienceActivitySource.ExceptionSanitizer = null;
+        }
     }
 }

@@ -349,6 +349,71 @@ public sealed class PollyTypedResiliencePipelineTests
         capturedPollyCtx!.Properties.TryGetValue(key, out _).Should().BeFalse();
     }
 
+    [Fact]
+    public async Task ExecuteAsync_PropagatesPropertiesAndAttemptNumber_Bidirectionally()
+    {
+        var pollyPipeline = new global::Polly.ResiliencePipelineBuilder<string>().Build();
+        var pipeline = new PollyResiliencePipeline<string>("test-pipeline", pollyPipeline);
+
+        var context = ResilienceContext.Create("test-pipeline")
+            .SetProperty("input_prop", "initial_val");
+        context.AttemptNumber = 4;
+
+        int observedInitialAttempt = 0;
+        ResilienceContext? observedContext = null;
+        var result = await pipeline.ExecuteAsync(async ctx =>
+        {
+            await Task.Yield();
+            observedInitialAttempt = ctx.AttemptNumber;
+            observedContext = ctx;
+            ctx.SetProperty("output_prop", "computed_val");
+            ctx.AttemptNumber = 5;
+            return "typed_success";
+        }, context);
+
+        result.Should().Be("typed_success");
+        observedContext.Should().NotBeNull();
+        observedInitialAttempt.Should().Be(4);
+        observedContext!.Properties["input_prop"].Should().Be("initial_val");
+
+        context.Properties["output_prop"].Should().Be("computed_val");
+        context.AttemptNumber.Should().Be(5);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenPollyStrategyReplacesEcosystemContext_UsesReplacedEcosystemContext()
+    {
+        var key = new ResiliencePropertyKey<ResilienceContext>("EricksonLopez.Resilience.EcosystemContext");
+        var replacedContext = ResilienceContext.Create("replaced-policy")
+            .SetProperty("replaced_key", "replaced_val");
+        replacedContext.AttemptNumber = 99;
+
+        var pollyBuilder = new global::Polly.ResiliencePipelineBuilder<string>();
+        pollyBuilder.AddStrategy(_ => new CustomTestStrategy(pCtx =>
+        {
+            pCtx.Properties.Set(key, replacedContext);
+        }), new TestStrategyOptions());
+        var pipeline = new PollyResiliencePipeline<string>("replaced-test", pollyBuilder.Build());
+
+        var originalContext = ResilienceContext.Create("orig-policy");
+        originalContext.AttemptNumber = 1;
+
+        ResilienceContext? observed = null;
+        var res = await pipeline.ExecuteAsync(async ctx =>
+        {
+            await Task.Yield();
+            observed = ctx;
+            ctx.SetProperty("added_in_op", "val_in_op");
+            return "done";
+        }, originalContext);
+
+        res.Should().Be("done");
+        observed.Should().NotBeNull();
+        observed!.AttemptNumber.Should().Be(99);
+        observed.Properties["replaced_key"].Should().Be("replaced_val");
+        replacedContext.Properties["added_in_op"].Should().Be("val_in_op");
+    }
+
     private sealed class TestStrategyOptions : global::Polly.ResilienceStrategyOptions { }
 
     private sealed class CustomTestStrategy : global::Polly.ResilienceStrategy

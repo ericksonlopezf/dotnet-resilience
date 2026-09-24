@@ -19,7 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 9 — Extensions: ASP.NET Core, HttpClient Delegating Handlers, and OpenTelemetry Observability.
+/// Provides extension demonstrations illustrating ASP.NET Core integrations, HttpClient delegating handlers, and OpenTelemetry observability.
 /// </summary>
 public static class Level9Extensions
 {
@@ -27,6 +27,10 @@ public static class Level9Extensions
     private const string ForecastOperation = "FetchForecastAsync";
     private const string SampleTenantId = "TENANT-01";
 
+    /// <summary>
+    /// Executes the extensions resilience demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     [SuppressMessage("Minor Code Smell", "S1075:URIs should not be hardcoded", Justification = "Showcase sample base URIs")]
     public static async ValueTask RunAsync()
     {
@@ -112,7 +116,43 @@ public static class Level9Extensions
         Console.WriteLine($"    CircuitBreakerStrategyOptions.WithTelemetry() -> OnCircuitOpened hooked: {cbWithTelemetry.OnCircuitOpened != null}");
         Console.WriteLine($"    TimeoutStrategyOptions.WithTelemetry()        -> OnTimeout hooked: {timeoutWithTelemetry.OnTimeout != null}");
 
-        // 4. Minimal API Endpoint Metadata Demonstration
+        // 1c. Multi-Tenant Metrics Tagging (IncludeTenantIdTag)
+        Console.WriteLine("\n --- 1c. Multi-Tenant Metrics Tagging (ResilienceMeter.IncludeTenantIdTag) ---");
+        var previousTenantTagSetting = ResilienceMeter.IncludeTenantIdTag;
+        try
+        {
+            ResilienceMeter.IncludeTenantIdTag = true;
+            Console.WriteLine($"    ResilienceMeter.IncludeTenantIdTag enabled: {ResilienceMeter.IncludeTenantIdTag}");
+            ResilienceMeter.RecordExecution(WeatherPolicyName, "MultiTenantForecast", 32.1, isSuccess: true, tenantId: "TENANT-GLOBAL-ENTERPRISE");
+            Console.WriteLine("    [✓] Recorded execution with explicit multi-tenant dimension tag 'resilience.tenant_id'.");
+        }
+        finally
+        {
+            ResilienceMeter.IncludeTenantIdTag = previousTenantTagSetting;
+        }
+
+        // 1d. Trace Exception Sanitization (ResilienceActivitySource.ExceptionSanitizer)
+        Console.WriteLine("\n --- 1d. Trace Exception Sanitization (ResilienceActivitySource.ExceptionSanitizer) ---");
+        var previousSanitizer = ResilienceActivitySource.ExceptionSanitizer;
+        try
+        {
+            ResilienceActivitySource.ExceptionSanitizer = ex =>
+            {
+                var sanitizedMessage = ex.Message.Replace("Bearer secret-token-12345", "[REDACTED-TOKEN]", StringComparison.OrdinalIgnoreCase);
+                return (sanitizedMessage, ex.StackTrace ?? string.Empty);
+            };
+
+            using var traceActivity = ResilienceActivitySource.StartExecutionActivity(WeatherPolicyName, "SecuredHttpCall", SampleTenantId);
+            var sensitiveEx = new HttpRequestException("Call failed with auth header: Bearer secret-token-12345");
+            ResilienceActivitySource.RecordException(traceActivity, sensitiveEx);
+            Console.WriteLine("    [✓] Recorded exception with sanitized credentials via ExceptionSanitizer.");
+        }
+        finally
+        {
+            ResilienceActivitySource.ExceptionSanitizer = previousSanitizer;
+        }
+
+        // 2. Minimal API Endpoint Metadata Demonstration
         Console.WriteLine("\n --- 2. ASP.NET Core Endpoint Metadata (RequireResilience) ---");
         var metadata = new ResilienceEndpointMetadata(WeatherPolicyName);
         Console.WriteLine($"    ResilienceEndpointMetadata configured for endpoint: PolicyName='{metadata.PolicyName}'");

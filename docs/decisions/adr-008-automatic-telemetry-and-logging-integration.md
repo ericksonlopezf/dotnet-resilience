@@ -1,7 +1,10 @@
 # ADR-008: Automatic Telemetry and Structured Logging Integration
 
 ## Status
-**Accepted**
+Accepted
+
+## Date
+2026-09-04
 
 ## Context
 Resilience mechanisms must be observable in production systems to detect cascading failures, degraded dependencies, and throttling. In previous versions, consumers had to manually invoke `ResilienceMeter` or attach logging callbacks. Modern cloud-native microservices expect out-of-the-box OpenTelemetry metrics and structured logging whenever a resilient execution occurs.

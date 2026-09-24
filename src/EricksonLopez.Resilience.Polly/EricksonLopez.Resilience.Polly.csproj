@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Description>Polly v8 infrastructure adapter for EricksonLopez.Resilience, encapsulating ResiliencePipeline execution behind ecosystem abstractions.</Description>
-    <PackageTags>$(CommonPackageTags);polly;polly-v8;adapter;infrastructure;execution-engine</PackageTags>
+    <PackageTags>$(CommonPackageTags);polly;polly-v8;resilience-pipeline;adapter;infrastructure</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

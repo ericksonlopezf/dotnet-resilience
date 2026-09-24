@@ -93,9 +93,11 @@ dotnet_diagnostic.CA1707.severity = warning
 dotnet_diagnostic.CA1852.severity = warning
 dotnet_diagnostic.CA1305.severity = warning
 dotnet_diagnostic.CS0619.severity = error
-dotnet_diagnostic.CS0618.severity = warning
+dotnet_diagnostic.CS0618.severity = error
 dotnet_diagnostic.CS1591.severity = warning
 dotnet_diagnostic.xUnit1051.severity = warning
+dotnet_diagnostic.CS0159.severity = error
+dotnet_diagnostic.CS159.severity = error
 
 # Documentation comments for source libraries
 [src/**.cs]
@@ -105,11 +107,15 @@ dotnet_diagnostic.CS1591.severity = warning
 [tests/**.cs]
 dotnet_diagnostic.CA1707.severity = none
 dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.IDE0005.severity = none
+dotnet_diagnostic.IDE1006.severity = none
 
 # Showcase exception for demo code flexibility
 [samples/**.cs]
 dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.IDE0005.severity = none
 
 # Benchmark exception
 [benchmarks/**.cs]
 dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.IDE0005.severity = none

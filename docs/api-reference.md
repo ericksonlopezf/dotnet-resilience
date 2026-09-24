@@ -81,8 +81,8 @@ Fluent builders used to configure and compose resilience strategies into immutab
 - `AddFallback(FallbackStrategyOptions<TResult> options)` *(Typed builder)*: Adds fallback value or generator.
 - `AddHedging(HedgingStrategyOptions options)` *(Untyped builder)* / `AddHedging(HedgingStrategyOptions<TResult> options)` *(Typed builder)*: Adds speculative hedging.
 - `AddResultRetry(Action<RetryStrategyOptions>? configure = null, IResultRetryClassifier? classifier = null)`: Extension adding result-aware retry.
-- `AddStandardResilience()`: Preset adding Timeout (30s) + Retry (3 attempts exponential jitter) + Circuit Breaker.
-- `AddDatabaseResilience(TimeSpan? timeout = null, int maxRetries = 3)`: Preset optimized for database connections.
+- `AddStandardResilience()`: Preset adding **Timeout (30s)** + **Retry (MaxRetryAttempts=3, Delay=1s, BackoffType=ExponentialWithJitter)** + **Circuit Breaker (FailureRatio=0.5, MinimumThroughput=20, SamplingDuration=30s, BreakDuration=10s)**. Also available as `AddStandardResilience<TResult>()` for typed pipelines.
+- `AddDatabaseResilience(TimeSpan? timeout = null, int maxRetries = 3)`: Preset optimized for database connections. Adds **Timeout (default 15s, configurable)** + **Retry (configurable maxRetries, Delay=200ms, BackoffType=ExponentialWithJitter, MaxDelay=2s)** using `ResultRetryClassifier` for transient DB exception detection.
 
 ---
 
@@ -90,15 +90,21 @@ Fluent builders used to configure and compose resilience strategies into immutab
 Namespace: `EricksonLopez.Resilience`  
 Assembly: `EricksonLopez.Resilience.Abstractions.dll`
 
-Thread-safe registry for compiling and retrieving named `IResiliencePipeline` and `IResiliencePipeline<TResult>` instances.
+Read-only registry contract for resolving compiled named `IResiliencePipeline` and `IResiliencePipeline<TResult>` instances.
 
 ### Methods
 - `GetPipeline(string policyName)`: Resolves untyped pipeline or throws `ResiliencePolicyNotFoundException`.
 - `GetPipeline<TResult>(string policyName)`: Resolves typed pipeline or throws `ResiliencePolicyNotFoundException`.
 - `TryGetPipeline(string policyName, out IResiliencePipeline? pipeline)`: Non-throwing untyped resolution.
 - `TryGetPipeline<TResult>(string policyName, out IResiliencePipeline<TResult>? pipeline)`: Non-throwing typed resolution.
-- `Register(string policyName, IResiliencePipeline pipeline)`: Registers an untyped pipeline.
-- `Register<TResult>(string policyName, IResiliencePipeline<TResult> pipeline)`: Registers a typed pipeline.
+
+### ResiliencePipelineRegistry (Concrete Implementation)
+Namespace: `EricksonLopez.Resilience.Registry`  
+Assembly: `EricksonLopez.Resilience.dll`
+
+Thread-safe, lock-free in-memory implementation of `IResiliencePipelineRegistry` backed by `ConcurrentDictionary`. Exposes mutation methods:
+- `Register(string policyName, IResiliencePipeline pipeline)`: Registers a compiled untyped pipeline.
+- `Register<TResult>(string policyName, IResiliencePipeline<TResult> pipeline)`: Registers a compiled typed pipeline.
 
 ---
 
@@ -171,16 +177,21 @@ Assembly: `EricksonLopez.Resilience.DependencyInjection.dll`
 - `services.AddEricksonLopezResilience(Action<ResilienceOptions>? configure = null)`: Registers core registries and executors.
 - `services.AddResiliencePolicy<TPolicy>()`: Registers a strongly-typed `ResiliencePolicy` subclass.
 - `services.AddResiliencePolicy(string name, Action<IResiliencePipelineBuilder> configure)`: Registers an inline policy.
+- `services.AddResiliencePolicy(string name, Action<IResiliencePipelineBuilder, IServiceProvider> configure)`: Registers an inline policy with access to `IServiceProvider` for resolving dependencies dynamically.
 - `services.AddResiliencePolicyFromConfiguration(string policyName, IConfigurationSection section)`: Registers an inline policy by reading `Retry`, `CircuitBreaker`, `Timeout`, and `RateLimiter` sub-sections from the provided `IConfigurationSection`. Uses `BindRetryOptions`, `BindCircuitBreakerOptions`, `BindTimeoutOptions`, `BindRateLimiterOptions` internally.
-- `ResilienceConfigurationExtensions`: Static reflection-free binders (`BindRetryOptions`, `BindCircuitBreakerOptions`, `BindTimeoutOptions`, `BindRateLimiterOptions`) for mapping `IConfigurationSection` to strategy options.
+- `ResilienceConfigurationExtensions`: AOT-safe explicit binders (`BindRetryOptions`, `BindCircuitBreakerOptions`, `BindTimeoutOptions`, `BindRateLimiterOptions`) for mapping `IConfigurationSection` to strategy options. Scalar fields use reflection-free parsers (`int.TryParse`, `double.TryParse`, `TimeSpan.TryParse`); enum fields (`BackoffType`, `RateLimiterType`) use `Enum.TryParse<T>` with compile-time-known generic parameters (AOT-compatible via .NET 8+ generic specialization).
 
 ### ResiliencePolicy (Abstract Base Class)
-Namespace: `EricksonLopez.Resilience`  
-Assembly: `EricksonLopez.Resilience.dll`
+Namespace: `EricksonLopez.Resilience.Policies`  
+Assembly: `EricksonLopez.Resilience.Abstractions.dll`
 
 Abstract base class for declaring strongly-typed, named resilience policies. Subclass and override `Name` and `Configure` to encapsulate policy configuration as a first-class domain object.
 
 ```csharp
+using EricksonLopez.Resilience;
+using EricksonLopez.Resilience.Policies;
+using Microsoft.Extensions.DependencyInjection;
+
 public sealed class MyPolicy : ResiliencePolicy
 {
     public override string Name => "my-policy";
@@ -190,7 +201,8 @@ public sealed class MyPolicy : ResiliencePolicy
                .AddTimeout(TimeSpan.FromSeconds(10));
     }
 }
-// Registration:
+
+// Registration in DI:
 services.AddResiliencePolicy<MyPolicy>();
 ```
 
@@ -224,8 +236,8 @@ Namespaces: `EricksonLopez.Resilience.OpenTelemetry`, `EricksonLopez.Resilience.
 Assembly: `EricksonLopez.Resilience.OpenTelemetry.dll`
 
 - **`ResilienceMeter`**: Emits `resilience.execution.duration`, `resilience.retry.attempts`, `resilience.circuit_breaker.state_changes`, `resilience.timeout.rejections`, `resilience.rate_limiter.rejections`.
-- **`ResilienceActivitySource`**: Emits distributed tracing spans named `Resilience.Execute` with semantic attribute tags: `resilience.policy` (policy name), `resilience.operation` (operation name), `resilience.tenant` (tenant ID), `resilience.correlation` (correlation ID).
-- **`services.AddResilienceOpenTelemetry()`**: Registers telemetry providers.
+- **`options.WithTelemetry()`**: Extension methods (`OpenTelemetryResilienceExtensions`) attaching automated metrics and tracing callbacks to `RetryStrategyOptions`, `CircuitBreakerStrategyOptions`, and `TimeoutStrategyOptions`.
+- **OpenTelemetry Registration**: Configured via standard .NET `services.AddOpenTelemetry().WithMetrics(m => m.AddMeter("EricksonLopez.Resilience")).WithTracing(t => t.AddSource("EricksonLopez.Resilience"))`.
 
 ---
 

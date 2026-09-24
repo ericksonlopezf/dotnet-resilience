@@ -14,10 +14,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 2 — Full Configuration: Comprehensive Strategy Options, Custom Builders, and Architectural Presets.
+/// Provides configuration demonstrations illustrating strategy options, custom builders, and architectural presets.
 /// </summary>
 public static class Level2Configuration
 {
+    /// <summary>
+    /// Executes the configuration resilience demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunAsync()
     {
         Console.WriteLine("================================================================================");

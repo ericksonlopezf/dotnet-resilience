@@ -9,7 +9,7 @@ namespace EricksonLopez.Resilience.Polly.Adapters;
 /// </summary>
 public static class PollyContextAdapter
 {
-    private static readonly ResiliencePropertyKey<ResilienceContext> EcosystemContextKey =
+    private static readonly ResiliencePropertyKey<ResilienceContext> _ecosystemContextKey =
         new("EricksonLopez.Resilience.EcosystemContext");
 
     /// <summary>
@@ -26,7 +26,13 @@ public static class PollyContextAdapter
             operationKey: ecosystemContext.OperationName,
             cancellationToken: ecosystemContext.CancellationToken);
 
-        pollyContext.Properties.Set(EcosystemContextKey, ecosystemContext);
+        pollyContext.Properties.Set(_ecosystemContextKey, ecosystemContext);
+
+        foreach (var kvp in ecosystemContext.Properties)
+        {
+            pollyContext.Properties.Set(new ResiliencePropertyKey<object?>(kvp.Key), kvp.Value);
+        }
+
         return pollyContext;
     }
 
@@ -40,7 +46,7 @@ public static class PollyContextAdapter
     {
         ArgumentNullException.ThrowIfNull(pollyContext);
 
-        return pollyContext.Properties.TryGetValue(EcosystemContextKey, out var ctx)
+        return pollyContext.Properties.TryGetValue(_ecosystemContextKey, out var ctx)
             ? ctx
             : null;
     }
@@ -48,7 +54,12 @@ public static class PollyContextAdapter
     /// <summary>
     /// Returns a pooled Polly context back to the shared pool.
     /// </summary>
-    /// <param name="pollyContext">The Polly context to return.</param>
+    /// <param name="pollyContext">The Polly context to return. If <see langword="null"/>, the method is a no-op.</param>
+    /// <remarks>
+    /// This method is null-safe: passing <see langword="null"/> performs no operation and does not throw.
+    /// Callers may pass the value returned by <see cref="ToPollyContext"/> directly without a null check,
+    /// as that method may return <see langword="null"/> when no matching context is found.
+    /// </remarks>
     public static void Return(global::Polly.ResilienceContext pollyContext)
     {
         if (pollyContext != null)

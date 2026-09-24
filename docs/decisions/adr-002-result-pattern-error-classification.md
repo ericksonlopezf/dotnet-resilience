@@ -1,7 +1,10 @@
 # ADR-002: Native Result Pattern and Error Classification
 
 ## Status
-**Accepted**
+Accepted
+
+## Date
+2026-09-04
 
 ## Context
 Traditional resilience libraries evaluate only exceptions (`System.Exception`). In high-performance, domain-driven architectures, many operational failures (e.g., downstream service unavailable, transient gateway timeout, rate limit exceeded) are modeled using functional results (`Result<T>`) rather than thrown exceptions to avoid expensive stack trace generation.

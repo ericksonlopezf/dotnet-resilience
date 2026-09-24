@@ -10,6 +10,13 @@ namespace EricksonLopez.Resilience.Options;
 public sealed class TimeoutStrategyOptions : ResilienceStrategyOptions
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="TimeoutStrategyOptions"/> class with default settings.
+    /// </summary>
+    public TimeoutStrategyOptions()
+    {
+    }
+
+    /// <summary>
     /// Gets or sets the maximum execution duration permitted before cancelling the operation and throwing a <see cref="Exceptions.ResilienceTimeoutException"/>.
     /// Default is 30 seconds.
     /// </summary>

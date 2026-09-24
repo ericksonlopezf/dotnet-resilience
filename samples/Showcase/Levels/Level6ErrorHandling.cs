@@ -15,10 +15,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 6 — Error Handling: Deterministic Classification and Typed Exception Hierarchy.
+/// Provides error handling demonstrations illustrating deterministic error classification and the typed exception hierarchy.
 /// </summary>
 public static class Level6ErrorHandling
 {
+    /// <summary>
+    /// Executes the error handling resilience demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunAsync()
     {
         Console.WriteLine("================================================================================");

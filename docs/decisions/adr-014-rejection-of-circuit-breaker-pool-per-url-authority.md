@@ -1,7 +1,10 @@
 # ADR-014: Rejection of Circuit Breaker Pool per URL Authority
 
 ## Status
-**Rejected**
+Rejected
+
+## Date
+2026-09-04
 
 ## Context
 `Microsoft.Extensions.Resilience` (MER) includes a `SelectPipelineBy` / `SelectPipelineByAuthority()` mechanism that routes HTTP requests to per-URL-authority circuit breaker pools. This prevents a single slow domain from opening a circuit breaker that affects all requests. The feature was evaluated for inclusion in `EricksonLopez.Resilience`.

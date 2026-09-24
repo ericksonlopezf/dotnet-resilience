@@ -10,42 +10,42 @@ using Microsoft.Extensions.Logging;
 namespace EricksonLopez.Resilience.Polly.Adapters;
 
 /// <summary>
-/// Implements <see cref="IResilienceExecutor"/> by resolving configured resilience pipelines from <see cref="IResiliencePipelineRegistry"/>,
-/// dispatching executions through Polly-backed pipelines, and automatically recording OpenTelemetry telemetry and structured logging.
+/// Provides an <see cref="IResilienceExecutor"/> implementation that resolves configured resilience pipelines from <see cref="IResiliencePipelineRegistry"/>,
+/// dispatches executions through Polly-backed pipelines, and records OpenTelemetry telemetry and structured logging.
 /// </summary>
 public sealed class PollyResilienceExecutor : IResilienceExecutor
 {
-    private static readonly Action<ILogger, string, string, string, string, Exception?> LogExecutingTrace =
+    private static readonly Action<ILogger, string, string, string, string, Exception?> _logExecutingTrace =
         LoggerMessage.Define<string, string, string, string>(
             LogLevel.Trace,
             new EventId(1, "ResilienceExecuting"),
             "Executing resilient operation {OperationName} with policy {PolicyName} (Tenant: {TenantId}, Correlation: {CorrelationId})");
 
-    private static readonly Action<ILogger, string, string, double, Exception?> LogSuccessDebug =
+    private static readonly Action<ILogger, string, string, double, Exception?> _logSuccessDebug =
         LoggerMessage.Define<string, string, double>(
             LogLevel.Debug,
             new EventId(2, "ResilienceSuccess"),
             "Resilient operation {OperationName} with policy {PolicyName} succeeded in {ElapsedMs:F2}ms");
 
-    private static readonly Action<ILogger, string, string, TimeSpan, double, Exception?> LogTimeoutWarning =
+    private static readonly Action<ILogger, string, string, TimeSpan, double, Exception?> _logTimeoutWarning =
         LoggerMessage.Define<string, string, TimeSpan, double>(
             LogLevel.Warning,
             new EventId(3, "ResilienceTimeout"),
             "Resilient operation {OperationName} with policy {PolicyName} timed out after {TimeoutDuration} (Elapsed: {ElapsedMs:F2}ms)");
 
-    private static readonly Action<ILogger, string, string, string, Exception?> LogCircuitBrokenWarning =
+    private static readonly Action<ILogger, string, string, string, Exception?> _logCircuitBrokenWarning =
         LoggerMessage.Define<string, string, string>(
             LogLevel.Warning,
             new EventId(4, "ResilienceCircuitBroken"),
             "Resilient operation {OperationName} blocked because circuit breaker {PolicyName} is open (RetryAfter: {RetryAfter})");
 
-    private static readonly Action<ILogger, string, string, string, Exception?> LogRateLimitWarning =
+    private static readonly Action<ILogger, string, string, string, Exception?> _logRateLimitWarning =
         LoggerMessage.Define<string, string, string>(
             LogLevel.Warning,
             new EventId(5, "ResilienceRateLimited"),
             "Resilient operation {OperationName} rejected by rate limiter for policy {PolicyName} (RetryAfter: {RetryAfter})");
 
-    private static readonly Action<ILogger, string, string, double, Exception?> LogFailedError =
+    private static readonly Action<ILogger, string, string, double, Exception?> _logFailedError =
         LoggerMessage.Define<string, string, double>(
             LogLevel.Error,
             new EventId(6, "ResilienceFailed"),
@@ -161,7 +161,7 @@ public sealed class PollyResilienceExecutor : IResilienceExecutor
     {
         if (_logger != null && _logger.IsEnabled(LogLevel.Trace))
         {
-            LogExecutingTrace(
+            _logExecutingTrace(
                 _logger,
                 context.OperationName,
                 context.PolicyName,
@@ -184,7 +184,7 @@ public sealed class PollyResilienceExecutor : IResilienceExecutor
 
         if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
         {
-            LogSuccessDebug(_logger, context.OperationName, context.PolicyName, elapsedMs, null);
+            _logSuccessDebug(_logger, context.OperationName, context.PolicyName, elapsedMs, null);
         }
     }
 
@@ -202,7 +202,7 @@ public sealed class PollyResilienceExecutor : IResilienceExecutor
         RecordExceptionTelemetry(ex, context);
         LogException(ex, context, elapsedMs);
 
-        activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+        ResilienceActivitySource.RecordException(activity, ex);
     }
 
     private static void RecordExceptionTelemetry(Exception ex, ResilienceContext context)
@@ -215,6 +215,10 @@ public sealed class PollyResilienceExecutor : IResilienceExecutor
         {
             ResilienceMeter.RecordRateLimitRejection(context.PolicyName, context.OperationName, context.TenantId);
         }
+        else if (ex is CircuitBrokenException)
+        {
+            ResilienceMeter.RecordCircuitBreakerRejection(context.PolicyName, context.OperationName, context.TenantId);
+        }
     }
 
     private void LogException(Exception ex, ResilienceContext context, double elapsedMs)
@@ -226,19 +230,19 @@ public sealed class PollyResilienceExecutor : IResilienceExecutor
 
         if (ex is ResilienceTimeoutException timeoutEx)
         {
-            LogTimeoutWarning(_logger, context.OperationName, context.PolicyName, timeoutEx.Timeout, elapsedMs, timeoutEx);
+            _logTimeoutWarning(_logger, context.OperationName, context.PolicyName, timeoutEx.Timeout, elapsedMs, timeoutEx);
         }
         else if (ex is CircuitBrokenException cbEx)
         {
-            LogCircuitBrokenWarning(_logger, context.OperationName, context.PolicyName, cbEx.RetryAfter?.ToString() ?? "Indefinite", cbEx);
+            _logCircuitBrokenWarning(_logger, context.OperationName, context.PolicyName, cbEx.RetryAfter?.ToString() ?? "Indefinite", cbEx);
         }
         else if (ex is RateLimitRejectedException rlEx)
         {
-            LogRateLimitWarning(_logger, context.OperationName, context.PolicyName, rlEx.RetryAfter?.ToString() ?? "Unknown", rlEx);
+            _logRateLimitWarning(_logger, context.OperationName, context.PolicyName, rlEx.RetryAfter?.ToString() ?? "Unknown", rlEx);
         }
         else
         {
-            LogFailedError(_logger, context.OperationName, context.PolicyName, elapsedMs, ex);
+            _logFailedError(_logger, context.OperationName, context.PolicyName, elapsedMs, ex);
         }
     }
 }

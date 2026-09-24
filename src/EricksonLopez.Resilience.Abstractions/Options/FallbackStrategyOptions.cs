@@ -11,6 +11,13 @@ namespace EricksonLopez.Resilience.Options;
 public sealed class FallbackStrategyOptions<TResult> : ResilienceStrategyOptions
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="FallbackStrategyOptions{TResult}"/> class with default settings.
+    /// </summary>
+    public FallbackStrategyOptions()
+    {
+    }
+
+    /// <summary>
     /// Gets or sets the asynchronous delegate responsible for generating the fallback <typeparamref name="TResult"/> value.
     /// </summary>
     public Func<FallbackContext, ValueTask<TResult>>? FallbackAction { get; set; }
