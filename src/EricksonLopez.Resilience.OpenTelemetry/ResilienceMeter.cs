@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using EricksonLopez.Resilience.Options;
@@ -19,38 +18,55 @@ public static class ResilienceMeter
     /// <summary>
     /// Gets the version of the OpenTelemetry meter.
     /// </summary>
-    public const string MeterVersion = "1.0.0";
+    public const string MeterVersion = "2.0.0";
 
-    private static readonly Meter Meter = new(MeterName, MeterVersion);
+    private static readonly Meter _meter = new(MeterName, MeterVersion);
 
-    private static readonly Histogram<double> ExecutionDuration = Meter.CreateHistogram<double>(
+    private static readonly Histogram<double> _executionDuration = _meter.CreateHistogram<double>(
         "resilience.execution.duration",
         "ms",
         "Execution duration of resilient operations in milliseconds.");
 
-    private static readonly Counter<long> RetryAttempts = Meter.CreateCounter<long>(
+    private static readonly Counter<long> _retryAttempts = _meter.CreateCounter<long>(
         "resilience.retry.attempts",
         "{attempt}",
         "Number of retry attempts executed.");
 
-    private static readonly Counter<long> CircuitBreakerStateChanges = Meter.CreateCounter<long>(
+    private static readonly Counter<long> _circuitBreakerStateChanges = _meter.CreateCounter<long>(
         "resilience.circuit_breaker.state_changes",
         "{transition}",
         "Number of circuit breaker state transitions.");
 
-    private static readonly Counter<long> TimeoutRejections = Meter.CreateCounter<long>(
+    private static readonly Counter<long> _timeoutRejections = _meter.CreateCounter<long>(
         "resilience.timeout.rejections",
         "{rejection}",
         "Number of operations terminated due to timeout.");
 
-    private static readonly Counter<long> RateLimiterRejections = Meter.CreateCounter<long>(
+    private static readonly Counter<long> _rateLimiterRejections = _meter.CreateCounter<long>(
         "resilience.rate_limiter.rejections",
         "{rejection}",
         "Number of operations rejected due to rate limiting.");
 
-    private const string PolicyTagName = "resilience.policy";
-    private const string OperationTagName = "resilience.operation";
-    private const string TenantIdTagName = "resilience.tenant_id";
+    private static readonly Counter<long> _circuitBreakerRejections = _meter.CreateCounter<long>(
+        "resilience.circuit_breaker.rejections",
+        "{rejection}",
+        "Number of operations rejected due to open circuit breaker.");
+
+    private const string _policyTagName = "resilience.policy";
+    private const string _operationTagName = "resilience.operation";
+    private const string _tenantIdTagName = "resilience.tenant_id";
+
+    private static volatile bool _includeTenantIdTag;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether tenant identifiers should be included in metric tags.
+    /// Defaults to <see langword="false"/> to prevent metric cardinality explosion in multi-tenant environments.
+    /// </summary>
+    public static bool IncludeTenantIdTag
+    {
+        get => _includeTenantIdTag;
+        set => _includeTenantIdTag = value;
+    }
 
     /// <summary>
     /// Records the execution duration and outcome of a resilient operation.
@@ -69,17 +85,17 @@ public static class ResilienceMeter
     {
         var tags = new TagList
         {
-            { PolicyTagName, policyName },
-            { OperationTagName, operationName },
+            { _policyTagName, policyName },
+            { _operationTagName, operationName },
             { "resilience.status", isSuccess ? "success" : "failure" }
         };
 
-        if (!string.IsNullOrEmpty(tenantId))
+        if (IncludeTenantIdTag && !string.IsNullOrEmpty(tenantId))
         {
-            tags.Add(TenantIdTagName, tenantId);
+            tags.Add(_tenantIdTagName, tenantId);
         }
 
-        ExecutionDuration.Record(durationMs, tags);
+        _executionDuration.Record(durationMs, tags);
     }
 
     /// <summary>
@@ -97,17 +113,17 @@ public static class ResilienceMeter
     {
         var tags = new TagList
         {
-            { PolicyTagName, policyName },
-            { OperationTagName, operationName },
+            { _policyTagName, policyName },
+            { _operationTagName, operationName },
             { "resilience.attempt", attemptNumber }
         };
 
-        if (!string.IsNullOrEmpty(tenantId))
+        if (IncludeTenantIdTag && !string.IsNullOrEmpty(tenantId))
         {
-            tags.Add(TenantIdTagName, tenantId);
+            tags.Add(_tenantIdTagName, tenantId);
         }
 
-        RetryAttempts.Add(1, tags);
+        _retryAttempts.Add(1, tags);
     }
 
     /// <summary>
@@ -123,16 +139,16 @@ public static class ResilienceMeter
     {
         var tags = new TagList
         {
-            { PolicyTagName, policyName },
+            { _policyTagName, policyName },
             { "resilience.circuit.state", state.ToString() }
         };
 
-        if (!string.IsNullOrEmpty(tenantId))
+        if (IncludeTenantIdTag && !string.IsNullOrEmpty(tenantId))
         {
-            tags.Add(TenantIdTagName, tenantId);
+            tags.Add(_tenantIdTagName, tenantId);
         }
 
-        CircuitBreakerStateChanges.Add(1, tags);
+        _circuitBreakerStateChanges.Add(1, tags);
     }
 
     /// <summary>
@@ -148,16 +164,16 @@ public static class ResilienceMeter
     {
         var tags = new TagList
         {
-            { PolicyTagName, policyName },
-            { OperationTagName, operationName }
+            { _policyTagName, policyName },
+            { _operationTagName, operationName }
         };
 
-        if (!string.IsNullOrEmpty(tenantId))
+        if (IncludeTenantIdTag && !string.IsNullOrEmpty(tenantId))
         {
-            tags.Add(TenantIdTagName, tenantId);
+            tags.Add(_tenantIdTagName, tenantId);
         }
 
-        TimeoutRejections.Add(1, tags);
+        _timeoutRejections.Add(1, tags);
     }
 
     /// <summary>
@@ -173,15 +189,40 @@ public static class ResilienceMeter
     {
         var tags = new TagList
         {
-            { PolicyTagName, policyName },
-            { OperationTagName, operationName }
+            { _policyTagName, policyName },
+            { _operationTagName, operationName }
         };
 
-        if (!string.IsNullOrEmpty(tenantId))
+        if (IncludeTenantIdTag && !string.IsNullOrEmpty(tenantId))
         {
-            tags.Add(TenantIdTagName, tenantId);
+            tags.Add(_tenantIdTagName, tenantId);
         }
 
-        RateLimiterRejections.Add(1, tags);
+        _rateLimiterRejections.Add(1, tags);
+    }
+
+    /// <summary>
+    /// Records a circuit breaker rejection due to open circuit state.
+    /// </summary>
+    /// <param name="policyName">The policy name.</param>
+    /// <param name="operationName">The operation name.</param>
+    /// <param name="tenantId">The optional tenant identifier.</param>
+    public static void RecordCircuitBreakerRejection(
+        string policyName,
+        string operationName,
+        string? tenantId = null)
+    {
+        var tags = new TagList
+        {
+            { _policyTagName, policyName },
+            { _operationTagName, operationName }
+        };
+
+        if (IncludeTenantIdTag && !string.IsNullOrEmpty(tenantId))
+        {
+            tags.Add(_tenantIdTagName, tenantId);
+        }
+
+        _circuitBreakerRejections.Add(1, tags);
     }
 }

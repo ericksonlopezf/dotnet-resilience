@@ -15,6 +15,13 @@ namespace EricksonLopez.Resilience.Options;
 public sealed class HedgingStrategyOptions<TResult> : ResilienceStrategyOptions
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="HedgingStrategyOptions{TResult}"/> class with default settings.
+    /// </summary>
+    public HedgingStrategyOptions()
+    {
+    }
+
+    /// <summary>
     /// Gets or sets the maximum number of additional concurrent hedged attempts allowed.
     /// Default is 2 attempts.
     /// </summary>

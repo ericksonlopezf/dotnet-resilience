@@ -8,6 +8,13 @@ namespace EricksonLopez.Resilience.Options;
 public abstract class ResilienceStrategyOptions
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="ResilienceStrategyOptions"/> class.
+    /// </summary>
+    protected ResilienceStrategyOptions()
+    {
+    }
+
+    /// <summary>
     /// Gets or sets the optional custom identifier for this strategy instance within a pipeline.
     /// </summary>
     public string? Name { get; set; }

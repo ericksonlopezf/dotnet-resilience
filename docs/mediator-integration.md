@@ -4,7 +4,7 @@
 
 `EricksonLopez.Resilience.Mediator` integrates resilience policies into the `EricksonLopez.Mediator` request pipeline.
 
-It uses zero-allocation struct continuations (`IPipelineBehavior<TRequest, TResponse> where TNext : struct, INext<TResponse>`), avoiding intermediate object allocations in high-throughput command and query processing.
+It uses minimized-allocation struct continuations (`IPipelineBehavior<TRequest, TResponse> where TNext : struct, INext<TResponse>`), eliminating Boxing on the continuation struct in high-throughput command and query processing. When a request implements `IResilientRequest`, the resilient-path async wrapping lambda incurs a bounded async state machine allocation.
 
 ---
 

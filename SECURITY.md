@@ -6,7 +6,8 @@ We provide security updates and patches for the following versions of `EricksonL
 
 | Version | Supported | Target Frameworks | Notes |
 |---|:---:|---|---|
-| `1.0.x` | :white_check_mark: | `.NET 8.0` (`net8.0`), `.NET 9.0` (`net9.0`), `.NET 10.0` (`net10.0`) | Current active release line. |
+| `2.0.x` | :white_check_mark: | `.NET 8.0` (`net8.0`), `.NET 9.0` (`net9.0`), `.NET 10.0` (`net10.0`) | Current active release line. |
+| `1.0.x` | :warning: | `.NET 8.0` (`net8.0`), `.NET 9.0` (`net9.0`), `.NET 10.0` (`net10.0`) | Maintenance mode (critical security fixes only). |
 | `< 1.0.0` | :x: | Pre-release | Not supported. |
 
 ---
@@ -34,8 +35,9 @@ If you discover a security vulnerability within `EricksonLopez.Resilience`, plea
 
 1. **Strong Name Signing**: All published assemblies are strongly named using an RSA key (`EricksonLopez.snk`). In CI environments, the key is restored from the `SNK_KEY` GitHub Secret (Base64-encoded) before compilation, guaranteeing binary authenticity and tamper evidence.
 2. **Deterministic Builds & SourceLink**: Builds use `PublishRepositoryUrl=true`, `EmbedUntrackedSources=true`, and `IncludeSymbols=true` (`.snupkg` format) to embed source maps and emit symbol packages mapped to exact Git commit SHAs.
-3. **NuGet Package Publishing**: Packages are published via the `publish.yml` GitHub Actions workflow using a static `NUGET_API_KEY` secret with `--skip-duplicate` to prevent accidental overwrites. NuGet OIDC Trusted Publishing is **not yet configured**.
-4. **NuGet Audit**: Direct dependency vulnerability scanning is enabled in all projects (`<NuGetAuditMode>direct</NuGetAuditMode>`, `<NuGetAuditLevel>high</NuGetAuditLevel>`), flagging known CVEs at build time.
+3. **NuGet OIDC Trusted Publishing**: Packages are published via `publish.yml` using OpenID Connect (OIDC) authentication (`NuGet/login@v1` with `id-token: write` permission), eliminating static, long-lived API keys from CI secrets.
+4. **Sigstore Provenance Attestation**: Published packages are attested with cryptographically verifiable build provenance generated via `actions/attest-build-provenance@v2.2.3` (`attestations: write`), guaranteeing that packages originated from this official repository workflow run.
+5. **NuGet Vulnerability Audit**: Direct dependency vulnerability scanning is enabled across all projects (`<NuGetAuditMode>direct</NuGetAuditMode>`, `<NuGetAuditLevel>high</NuGetAuditLevel>`), flagging known CVEs at compilation time.
 
 ---
 

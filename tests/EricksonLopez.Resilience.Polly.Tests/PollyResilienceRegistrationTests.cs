@@ -8,6 +8,8 @@ using EricksonLopez.Resilience.Polly.Adapters;
 using EricksonLopez.Resilience.Polly.Registration;
 using Xunit;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace EricksonLopez.Resilience.Polly.Tests;
 
 public sealed class PollyResilienceRegistrationTests
@@ -16,8 +18,7 @@ public sealed class PollyResilienceRegistrationTests
     public void Initialize_RegistersFactoryAndIsIdempotent()
     {
         var field = typeof(PollyResilienceRegistration).GetField("_initialized", BindingFlags.NonPublic | BindingFlags.Static)!;
-        var syncLockField = typeof(PollyResilienceRegistration).GetField("SyncLock", BindingFlags.NonPublic | BindingFlags.Static)!;
-        var syncLock = syncLockField.GetValue(null)!;
+        var syncLock = PollyResilienceRegistration.SyncLock;
 
         field.SetValue(null, false);
 
@@ -59,8 +60,7 @@ public sealed class PollyResilienceRegistrationTests
     public void Initialize_WhenAlreadyInitialized_ReturnsImmediatelyWithoutWaitingForLock()
     {
         var field = typeof(PollyResilienceRegistration).GetField("_initialized", BindingFlags.NonPublic | BindingFlags.Static)!;
-        var syncLockField = typeof(PollyResilienceRegistration).GetField("SyncLock", BindingFlags.NonPublic | BindingFlags.Static)!;
-        var syncLock = syncLockField.GetValue(null)!;
+        var syncLock = PollyResilienceRegistration.SyncLock;
 
         field.SetValue(null, true);
 
@@ -96,8 +96,7 @@ public sealed class PollyResilienceRegistrationTests
     public async Task Initialize_WhenAlreadyInitializedInsideLock_HitsInnerCheck()
     {
         var field = typeof(PollyResilienceRegistration).GetField("_initialized", BindingFlags.NonPublic | BindingFlags.Static)!;
-        var syncLockField = typeof(PollyResilienceRegistration).GetField("SyncLock", BindingFlags.NonPublic | BindingFlags.Static)!;
-        var syncLock = syncLockField.GetValue(null)!;
+        var syncLock = PollyResilienceRegistration.SyncLock;
 
         field.SetValue(null, false);
 

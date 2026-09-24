@@ -21,10 +21,37 @@ public sealed class NamedPolicyRegistrationTests
 
         // Assert
         reg.Name.Should().Be("test-policy");
-        reg.Configure.Should().BeSameAs(configure);
+        reg.Configure.Should().NotBeNull();
 
         var builder = new ResiliencePipelineBuilder("test-policy");
-        reg.Configure(builder);
+        reg.Configure(builder, null!);
         executed.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Constructor_WithServiceProviderAction_InitializesPropertiesCorrectly()
+    {
+        // Arrange
+        var executed = false;
+        IServiceProvider? capturedSp = null;
+        Action<IResiliencePipelineBuilder, IServiceProvider> configure = (b, sp) =>
+        {
+            executed = true;
+            capturedSp = sp;
+        };
+
+        // Act
+        var reg = new NamedPolicyRegistration("test-sp-policy", configure);
+
+        // Assert
+        reg.Name.Should().Be("test-sp-policy");
+        reg.Configure.Should().NotBeNull();
+
+        var builder = new ResiliencePipelineBuilder("test-sp-policy");
+        var spMock = NSubstitute.Substitute.For<IServiceProvider>();
+        reg.Configure(builder, spMock);
+
+        executed.Should().BeTrue();
+        capturedSp.Should().BeSameAs(spMock);
     }
 }

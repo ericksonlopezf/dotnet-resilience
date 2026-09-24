@@ -4,7 +4,7 @@
 
 The repository utilizes MSBuild Central Package Management (CPM) with unified multi-project properties configured via root files:
 
-- **`Directory.Build.props`**: Centralizes versioning (`VersionPrefix=1.0.0`), authors, package metadata, target frameworks (`net8.0;net9.0;net10.0`), compiler warning levels (`WarningLevel=5`, `TreatWarningsAsErrors=true`), SourceLink (`SymbolPackageFormat=snupkg`), Strong Name Signing (`SignAssembly=true`), and Native AOT analyzers (`EnableTrimAnalyzer=true`, `IsAotCompatible=true`).
+- **`Directory.Build.props`**: Centralizes versioning (`VersionPrefix=2.0.0`), authors, package metadata, target frameworks (`net8.0;net9.0;net10.0`), compiler warning levels (`WarningLevel=5`, `TreatWarningsAsErrors=true`), SourceLink (`SymbolPackageFormat=snupkg`), Strong Name Signing (`SignAssembly=true`), and Native AOT analyzers (`EnableTrimAnalyzer=true`, `IsAotCompatible=true`).
 - **`Directory.Packages.props`**: Centrally manages all NuGet package versions across production, test, and benchmark projects (`ManagePackageVersionsCentrally=true`).
 
 ---
@@ -46,16 +46,16 @@ The repository includes 10 dedicated GitHub Actions workflow definitions:
 
 | Workflow File | Name | Trigger | Key Jobs & Actions | Secrets Required |
 |---|---|---|---|---|
-| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | Continuous Integration | `push`, `pull_request` on `main`, `develop` | Orchestrates fast repo compliance, build/test matrix with SonarCloud, and Native AOT smoke test. | `SNK_KEY`, `CODECOV_TOKEN`, `SONAR_TOKEN` |
-| [`.github/workflows/dotnet-build-test.yml`](../.github/workflows/dotnet-build-test.yml) | Build and Test | `workflow_call`, `workflow_dispatch` | Sets up .NET 8, 9, 10 & Java 17; restores SNK key; performs SonarCloud static analysis; builds Release; runs tests with XPlat coverage; uploads to Codecov. | `SNK_KEY`, `CODECOV_TOKEN`, `SONAR_TOKEN` |
-| [`.github/workflows/aot-smoke-test.yml`](../.github/workflows/aot-smoke-test.yml) | Native AOT Smoke Test | `workflow_call`, `workflow_dispatch` | Publishes self-contained Linux-x64 AOT binary and executes smoke test assertions. | `SNK_KEY` |
-| [`.github/workflows/benchmark-regression-gate.yml`](../.github/workflows/benchmark-regression-gate.yml) | Benchmark Regression Gate | `pull_request` affecting `src/**`, `benchmarks/**`, `workflow_dispatch` | Runs BenchmarkDotNet on PR head, compares vs baseline JSON, and fails if regression exceeds threshold (default 10%). | `SNK_KEY` |
+| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | Continuous Integration | `push`, `pull_request` on `main`, `develop` | Orchestrates build/test matrix with SonarCloud, and Native AOT smoke test. | `SNK_KEY`, `CODECOV_TOKEN`, `SONAR_TOKEN` |
+| [`.github/workflows/dotnet-build-test.yml`](../.github/workflows/dotnet-build-test.yml) | Reusable — .NET Build & Test | `workflow_call` | Sets up .NET 10.0.x & Java 17; restores SNK key; performs SonarCloud static analysis; builds Release; runs tests with XPlat coverage; uploads to Codecov. | `SNK_KEY`, `CODECOV_TOKEN`, `SONAR_TOKEN` |
+| [`.github/workflows/aot-smoke-test.yml`](../.github/workflows/aot-smoke-test.yml) | NativeAOT Smoke Test | `workflow_call`, `push` (`main`, `develop`), `pull_request` (`main`, `develop`), `workflow_dispatch` | Publishes self-contained Linux-x64 AOT binary with `TreatWarningsAsErrors=true` and executes native smoke test assertions. | `SNK_KEY` |
+| [`.github/workflows/benchmark-regression-gate.yml`](../.github/workflows/benchmark-regression-gate.yml) | Benchmark Regression Gate | `pull_request` affecting `src/**`, `benchmarks/**`, `workflow_dispatch` | Runs BenchmarkDotNet on PR head, compares vs baseline JSON via `verify-benchmark-gate.ps1`, and fails if latency regression exceeds threshold (default 5%). | `SNK_KEY` |
 | [`.github/workflows/benchmarks.yml`](../.github/workflows/benchmarks.yml) | Benchmarks | `workflow_call`, `workflow_dispatch` | Runs BenchmarkDotNet with configurable filter, publishes step summaries and markdown artifacts. | `SNK_KEY` |
-| [`.github/workflows/mutation-testing.yml`](../.github/workflows/mutation-testing.yml) | Mutation Testing Quality Gate | `pull_request` on `main`, `develop`, weekly cron (`0 3 * * 0`), `workflow_dispatch` (`Basic`, `Standard`, `Advanced`), `workflow_call` | Executes matrix Stryker mutation testing across packages as a Quality Gate (not on every push); posts commit status `quality-gate/mutation-testing`. | `SNK_KEY` |
-| [`.github/workflows/publish.yml`](../.github/workflows/publish.yml) | Publish Packages | `release` (`published`), `workflow_dispatch` | Validates target commit mutation score (≥95%) before packing Release packages and pushing to NuGet. | `SNK_KEY`, `NUGET_API_KEY` |
-| [`.github/workflows/release-please.yml`](../.github/workflows/release-please.yml) | Release Please | `push` on `main` | Automates semantic versioning, changelog generation, and GitHub release creation. | Standard `GITHUB_TOKEN` |
-| [`.github/workflows/repo-compliance.yml`](../.github/workflows/repo-compliance.yml) | Repository Compliance | `workflow_call`, `pull_request` on `main`, `develop`, `workflow_dispatch` | Executes `scripts/verify-compliance.ps1` to enforce architectural governance and standards. | None |
-| [`.github/workflows/weekly-benchmarks.yml`](../.github/workflows/weekly-benchmarks.yml) | Weekly Benchmarks | Weekly cron (`0 2 * * 0`), `workflow_dispatch` | Runs multi-TFM cross-runtime benchmarks and automatically commits updated baseline results to `benchmarks/results/`. | `SNK_KEY` |
+| [`.github/workflows/mutation-testing.yml`](../.github/workflows/mutation-testing.yml) | Mutation Testing (Stryker) | Weekly cron (`0 4 * * 1` - Monday 04:00 UTC), `workflow_call`, `workflow_dispatch` (`Basic`, `Standard`, `Advanced`) | Executes matrix Stryker mutation testing across all 7 packages as a Quality Gate; posts commit status `quality-gate/mutation-testing`. | None |
+| [`.github/workflows/publish.yml`](../.github/workflows/publish.yml) | Publish NuGet | `push` (tags `v*.*.*`), `workflow_dispatch` (input: `version`) | Validates target commit mutation score (≥95%) before packing Release packages, generating Sigstore provenance attestation, and pushing to NuGet via OIDC. | `SNK_KEY`, `CODECOV_TOKEN` |
+| [`.github/workflows/release-please.yml`](../.github/workflows/release-please.yml) | Release Please | `push` on `main` | Automates semantic versioning, changelog generation, GitHub releases, and triggers `publish.yml` via `workflow_dispatch`. | Standard `GITHUB_TOKEN` |
+| [`.github/workflows/repo-compliance.yml`](../.github/workflows/repo-compliance.yml) | Repository Compliance & Quality Gate | `push` on `main`, `pull_request` on `main`, `workflow_dispatch` | Executes `scripts/verify-compliance.ps1`, builds with strict diagnostics, runs unit tests, and validates package creation. | None |
+| [`.github/workflows/weekly-benchmarks.yml`](../.github/workflows/weekly-benchmarks.yml) | Weekly Benchmarks (Deep Review) | Weekly cron (`0 2 * * 0` - Sunday 02:00 UTC), `workflow_dispatch` | Runs multi-TFM cross-runtime benchmarks (.NET 8, 9, 10) and automatically commits updated baseline results to `benchmarks/results/`. | `SNK_KEY` |
 
 ---
 
@@ -68,10 +68,9 @@ All production and test code is compiled with `<TreatWarningsAsErrors>true</Trea
 Automated unit and integration tests run with Coverlet data collection (`--collect:"XPlat Code Coverage"`). Coverage reports in Cobertura format are uploaded to Codecov with strict branch, line, and method thresholds (target: 100%).
 
 ### 3. Mutation Testing Quality Gate (Stryker.NET)
-Stryker is configured across 8 dedicated configuration files:
-- `stryker-config.json` — **Global fallback** (same target as `stryker-core-config.json`; used when no package-specific config is found)
-- `stryker-core-config.json` — `EricksonLopez.Resilience` (Core)
+Stryker is configured across 7 dedicated configuration files matching each package:
 - `stryker-abstractions-config.json` — `EricksonLopez.Resilience.Abstractions`
+- `stryker-core-config.json` — `EricksonLopez.Resilience` (Core)
 - `stryker-polly-config.json` — `EricksonLopez.Resilience.Polly`
 - `stryker-dependencyinjection-config.json` — `EricksonLopez.Resilience.DependencyInjection`
 - `stryker-mediator-config.json` — `EricksonLopez.Resilience.Mediator`
@@ -87,15 +86,14 @@ Stryker is configured across 8 dedicated configuration files:
    - `Advanced`: Full suite across all 7 packages.
 4. **Single Source of Truth Thresholds**:
    - `break = 95`: Hard failure threshold. Exit code `1` if `< 95%`.
-   - `low = 98`: Warning threshold (`95% - 97.99%` is `🟠 WARNING`, `98% - 99.99%` is `🟡 LOW`).
+   - `warn = 95`: Warning threshold (`95% - 97.99%` is `🟠 WARNING`).
+   - `low = 98`: Low threshold (`98% - 99.99%` is `🟡 LOW`).
    - `high = 100`: `✅ HIGH`.
 5. **Release Gate Validation (`publish.yml`)**:
-   - Before publishing to NuGet, the release pipeline queries the commit status of the commit SHA being released using [`scripts/validate-mutation-gate.js`](../scripts/validate-mutation-gate.js).
+   - Before publishing to NuGet, the release pipeline queries the commit status of the commit SHA being released using [`scripts/verify-mutation-gate.js`](../scripts/verify-mutation-gate.js).
    - If `mutation score >= 95%` -> Release is permitted.
-   - If `mutation score < 95%` or unanalyzed -> Release is blocked.
-   - The release does **not** re-run Stryker unnecessarily.
-
-> **Note**: `stryker-config.json` and `stryker-core-config.json` are intentionally identical; the global file serves as a CI fallback when the matrix references a package key without a dedicated config file.
+   - If `mutation score < 95%` or unanalyzed -> Release triggers conditional Stryker run or is blocked.
+   - The release does **not** re-run Stryker unnecessarily when the gate is already satisfied.
 
 ### 4. Architecture Governance Auditor
 The PowerShell script [`scripts/verify-compliance.ps1`](../scripts/verify-compliance.ps1) verifies 7 critical invariants:
@@ -121,8 +119,12 @@ Enforced in `EricksonLopez.Resilience.ArchitectureTests`:
 ### 1. Strong Name Signing
 All production binaries are strongly named using an RSA key (`EricksonLopez.snk`). In CI environments, the key is restored from the `SNK_KEY` GitHub Secret into the repository root before compilation.
 
-### 2. NuGet Trusted Publishing
-Packages are packed with embedded SourceLink metadata, symbol packages (`.snupkg`), and published via authenticated CI actions using `NUGET_API_KEY`.
+### 2. NuGet OIDC Trusted Publishing & Sigstore Provenance
+- **NuGet OIDC Trusted Publishing**: Packages are pushed via `publish.yml` using GitHub Actions OpenID Connect (`NuGet/login@v1` with `id-token: write` permission), removing static API key secrets.
+- **Sigstore Build Provenance Attestation**: Every `.nupkg` package is cryptographically attested via `actions/attest-build-provenance@v2.2.3` (`attestations: write`), guaranteeing verifiable origin.
+- **Deterministic Builds & SourceLink**: Built with `PublishRepositoryUrl=true`, `EmbedUntrackedSources=true`, and symbol packages (`.snupkg`).
+- **NuGet Vulnerability Audit**: Direct dependency scanning enabled via `<NuGetAuditMode>direct</NuGetAuditMode>` and `<NuGetAuditLevel>high</NuGetAuditLevel>`.
+
 
 ---
 

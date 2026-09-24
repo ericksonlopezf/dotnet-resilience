@@ -50,7 +50,7 @@ public sealed class ResilienceConfigurationExtensionsTests
         {
             await pipeline.ExecuteAsync(async ct =>
             {
-                await Task.Delay(200, ct);
+                await Task.Delay(500, ct);
                 return "TooSlow";
             });
         };

@@ -1,7 +1,10 @@
 # ADR-006: Prohibition of Synchronous Execution APIs
 
 ## Status
-**Accepted**
+Accepted
+
+## Date
+2026-09-04
 
 ## Context
 Legacy resilience frameworks (such as Polly v7) provided blocking synchronous execution methods (`Execute(...)` and `Execute<T>(...)`). In modern high-throughput asynchronous services running on .NET 10, synchronous blocking over resilient pipelines leads to severe architectural risks:

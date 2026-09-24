@@ -140,6 +140,11 @@ public static class PollyPipelineBuilderTranslator
 
     private static void AddRetry(global::Polly.ResiliencePipelineBuilder builder, EcoOptions.RetryStrategyOptions options)
     {
+        if (options.MaxRetryAttempts <= 0)
+        {
+            return;
+        }
+
         var predicateBuilder = new PredicateBuilder().Handle<Exception>(ex =>
             options.ShouldHandleException?.Invoke(ex) ?? TransientExceptionClassifier.IsTransient(ex));
 
@@ -169,6 +174,11 @@ public static class PollyPipelineBuilderTranslator
 
     private static void AddRetryTyped<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TResult>(global::Polly.ResiliencePipelineBuilder<TResult> builder, EcoOptions.RetryStrategyOptions options)
     {
+        if (options.MaxRetryAttempts <= 0)
+        {
+            return;
+        }
+
         var predicateBuilder = new PredicateBuilder<TResult>().Handle<Exception>(ex =>
             options.ShouldHandleException?.Invoke(ex) ?? TransientExceptionClassifier.IsTransient(ex));
 
@@ -198,11 +208,12 @@ public static class PollyPipelineBuilderTranslator
 
     private static async ValueTask HandleRetry(EcoOptions.RetryStrategyOptions options, global::Polly.ResilienceContext context, int attemptNumber, TimeSpan retryDelay, Exception? exception, object? result)
     {
+        var ecoCtx = PollyContextAdapter.GetEcosystemContext(context)
+            ?? ResilienceContext.Create(options.Name ?? "Retry", context.CancellationToken);
+        ecoCtx.AttemptNumber = attemptNumber + 1;
+
         if (options.OnRetry != null)
         {
-            var ecoCtx = PollyContextAdapter.GetEcosystemContext(context)
-                ?? ResilienceContext.Create(options.Name ?? "Retry", context.CancellationToken);
-            ecoCtx.AttemptNumber = attemptNumber + 1;
             var retryContext = new EcoOptions.RetryAttemptContext(
                 ecoCtx,
                 attemptNumber + 1,

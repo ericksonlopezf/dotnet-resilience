@@ -81,6 +81,9 @@ public interface IResiliencePipelineBuilder
     /// </summary>
     /// <param name="options">The hedging strategy options.</param>
     /// <returns>The builder instance for fluent chaining.</returns>
+    /// <remarks>
+    /// Untyped hedging cannot perform concurrent speculative executions in Polly v8 and falls back to sequential retry. Use <c>ResiliencePipelineBuilder&lt;TResult&gt;.AddHedging</c> instead for parallel hedging.
+    /// </remarks>
     IResiliencePipelineBuilder AddHedging(HedgingStrategyOptions options);
 
     /// <summary>
@@ -88,6 +91,9 @@ public interface IResiliencePipelineBuilder
     /// </summary>
     /// <param name="configure">The configuration delegate.</param>
     /// <returns>The builder instance for fluent chaining.</returns>
+    /// <remarks>
+    /// Untyped hedging cannot perform concurrent speculative executions in Polly v8 and falls back to sequential retry. Use <c>ResiliencePipelineBuilder&lt;TResult&gt;.AddHedging</c> instead for parallel hedging.
+    /// </remarks>
     IResiliencePipelineBuilder AddHedging(Action<HedgingStrategyOptions> configure);
 
     /// <summary>

@@ -1,18 +1,16 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
 using System.Collections.Generic;
-using EricksonLopez.Resilience.Exceptions;
 using EricksonLopez.Resilience.Options;
-using EricksonLopez.Resilience.Pipelines;
 
 namespace EricksonLopez.Resilience.Builder;
 
 /// <summary>
-/// Implements <see cref="IResiliencePipelineBuilder"/> for accumulating and validating resilience strategies.
+/// Provides a builder implementation for accumulating, configuring, and validating resilience strategies to construct an <see cref="IResiliencePipeline"/>.
 /// </summary>
 public sealed class ResiliencePipelineBuilder : IResiliencePipelineBuilder
 {
-    private static Func<IResiliencePipelineBuilder, IResiliencePipeline>? _pipelineFactory;
+    private static volatile Func<IResiliencePipelineBuilder, IResiliencePipeline>? _pipelineFactory;
     private readonly List<ResilienceStrategyOptions> _strategies = new();
 
     /// <summary>
@@ -60,12 +58,15 @@ public sealed class ResiliencePipelineBuilder : IResiliencePipelineBuilder
             return TypedFactoryHolder<TResult>.Factory(builder);
         }
 
-        return new PassthroughResiliencePipeline<TResult>(builder.Name);
+        throw new InvalidOperationException(
+            $"Cannot compile typed resilience pipeline '{builder.Name}' for result type '{typeof(TResult).FullName}'. " +
+            $"No typed pipeline compilation factory has been registered. Ensure that EricksonLopez.Resilience.Polly is referenced and initialized via " +
+            $"PollyResilienceRegistration.RegisterTypedPipeline<{typeof(TResult).Name}>() or dependency injection services.AddResiliencePipeline<{typeof(TResult).Name}>().");
     }
 
     private static class TypedFactoryHolder<TResult>
     {
-        internal static Func<ResiliencePipelineBuilder<TResult>, IResiliencePipeline<TResult>>? Factory { get; set; }
+        internal static volatile Func<ResiliencePipelineBuilder<TResult>, IResiliencePipeline<TResult>>? Factory;
     }
 
     /// <inheritdoc/>
@@ -141,6 +142,11 @@ public sealed class ResiliencePipelineBuilder : IResiliencePipelineBuilder
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// Untyped hedging cannot perform concurrent speculative executions in Polly v8
+    /// and falls back to sequential retry. Use <see cref="ResiliencePipelineBuilder{TResult}.AddHedging(HedgingStrategyOptions{TResult})"/>
+    /// for parallel speculative hedging.
+    /// </remarks>
     public IResiliencePipelineBuilder AddHedging(HedgingStrategyOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -150,6 +156,11 @@ public sealed class ResiliencePipelineBuilder : IResiliencePipelineBuilder
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// Untyped hedging cannot perform concurrent speculative executions in Polly v8
+    /// and falls back to sequential retry. Use <see cref="ResiliencePipelineBuilder{TResult}.AddHedging(Action{HedgingStrategyOptions{TResult}})"/>
+    /// for parallel speculative hedging.
+    /// </remarks>
     public IResiliencePipelineBuilder AddHedging(Action<HedgingStrategyOptions> configure)
     {
         ArgumentNullException.ThrowIfNull(configure);
@@ -159,6 +170,7 @@ public sealed class ResiliencePipelineBuilder : IResiliencePipelineBuilder
     }
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">No pipeline compilation factory has been registered</exception>
     public IResiliencePipeline Build()
     {
         if (_pipelineFactory != null)
@@ -166,7 +178,9 @@ public sealed class ResiliencePipelineBuilder : IResiliencePipelineBuilder
             return _pipelineFactory(this);
         }
 
-        // Standalone fallback pipeline when no external execution engine adapter is loaded
-        return new PassthroughResiliencePipeline(Name);
+        throw new InvalidOperationException(
+            $"Cannot compile resilience pipeline '{Name}'. " +
+            $"No pipeline compilation factory has been registered. Ensure that EricksonLopez.Resilience.Polly is referenced and initialized via " +
+            $"PollyResilienceRegistration.Initialize() or dependency injection services.AddEricksonLopezResilience().");
     }
 }

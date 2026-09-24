@@ -1,7 +1,10 @@
 # ADR-016: Deferral of Global Retry Budget
 
 ## Status
-**Deferred** — Advanced feature for high-scale scenarios; revisit at v2.x
+Deferred — Advanced feature for high-scale scenarios; revisit at v2.x
+
+## Date
+2026-09-04
 
 ## Context
 A "retry budget" is a system-wide mechanism that caps the total number of retry attempts across all concurrent operations within a time window. This prevents retry storms under cascading failure conditions where many concurrent operations simultaneously trigger retries, amplifying load on an already-stressed downstream service. The feature was considered for inclusion during the competitive analysis phase.

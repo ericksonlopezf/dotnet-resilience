@@ -17,10 +17,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 8 — Customization: Strongly-Typed Policies, Custom Error Classifiers, and Decoupled Pipelines.
+/// Provides customization demonstrations illustrating strongly-typed policies, custom error classifiers, and decoupled pipelines.
 /// </summary>
 public static class Level8Customization
 {
+    /// <summary>
+    /// Executes the customization resilience demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunAsync()
     {
         Console.WriteLine("================================================================================");
@@ -185,19 +189,88 @@ public static class Level8Customization
         Console.WriteLine($"    Custom ConcurrencyLimiter stats: PermitLimit=3, QueueLimit=2");
         await customConcurrencyLimiter.DisposeAsync();
 
+        // 7. Dynamic policy configuration with access to IServiceProvider
+        Console.WriteLine("\n --- 7. IServiceProvider-Aware Policy Configuration (AddResiliencePolicy with SP) ---");
+        var services3 = new ServiceCollection();
+        services3.AddSingleton<CustomEndpointConfig>(new CustomEndpointConfig("https://api.partner.example.com", TimeSpan.FromSeconds(4)));
+        services3.AddEricksonLopezResilience();
+        services3.AddResiliencePolicy("sp-configured-policy", (builder, sp) =>
+        {
+            var config = sp.GetRequiredService<CustomEndpointConfig>();
+            Console.WriteLine($"    [Configuring Policy via IServiceProvider] Target='{config.EndpointUrl}', Timeout={config.Timeout.TotalSeconds}s");
+            builder.AddTimeout(config.Timeout);
+        });
+
+        var sp3 = services3.BuildServiceProvider();
+        var executor3 = sp3.GetRequiredService<IResilienceExecutor>();
+        var spPolicyResult = await executor3.ExecuteAsync(
+            "sp-configured-policy",
+            async (CancellationToken ct) =>
+            {
+                await Task.Delay(10, ct);
+                return "Executed policy configured with resolved IServiceProvider dependency.";
+            });
+        Console.WriteLine($" [✓] {spPolicyResult}");
+
+        // 8. Strongly-Typed Parallel Hedging with Custom HedgedActionGenerator
+        Console.WriteLine("\n --- 8. Typed Parallel Hedging with HedgedActionGenerator ---");
+        PollyResilienceRegistration.RegisterTypedPipeline<string>();
+
+        var hedgedBuilder = new ResiliencePipelineBuilder<string>("HedgedReplicaPipeline")
+            .AddHedging(opt =>
+            {
+                opt.MaxHedgedAttempts = 2;
+                opt.Delay = TimeSpan.FromMilliseconds(50);
+                opt.HedgedActionGenerator = ctx =>
+                {
+                    Console.WriteLine($"    [HedgedActionGenerator] Spawning speculative attempt #{ctx.AttemptNumber} against secondary replica...");
+                    return async () =>
+                    {
+                        await Task.Delay(10);
+                        return $"Response from Secondary Replica [Attempt {ctx.AttemptNumber}]";
+                    };
+                };
+            });
+
+        var hedgedPipeline = hedgedBuilder.Build();
+        var hedgedResult = await hedgedPipeline.ExecuteAsync(
+            async (ResilienceContext ctx) =>
+            {
+                Console.WriteLine("    [Primary Attempt] Simulating primary replica latency (150ms)...");
+                await Task.Delay(150, ctx.CancellationToken);
+                return "Response from Primary Replica";
+            },
+            ResilienceContext.Create("HedgedReplicaPipeline"));
+
+        Console.WriteLine($" [✓] Hedged execution completed: '{hedgedResult}'");
+
         Console.WriteLine("\n [✓] Level 8 Completed successfully.");
         Console.WriteLine("--------------------------------------------------------------------------------\n");
     }
 
+    private sealed record CustomEndpointConfig(string EndpointUrl, TimeSpan Timeout);
+
     /// <summary>
-    /// Strongly-typed policy reusable across the enterprise architecture.
+    /// Represents a strongly-typed resilience policy reusable across the enterprise architecture.
     /// </summary>
     public sealed class EnterprisePaymentResiliencePolicy : ResiliencePolicy
     {
+        /// <summary>
+        /// Gets the logical policy name for enterprise payments.
+        /// </summary>
         public const string PolicyName = "EnterprisePaymentPolicy";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnterprisePaymentResiliencePolicy"/> class.
+        /// </summary>
+        public EnterprisePaymentResiliencePolicy()
+        {
+        }
+
+        /// <inheritdoc/>
         public override string Name => PolicyName;
 
+        /// <inheritdoc/>
         public override void Configure(IResiliencePipelineBuilder builder)
         {
             builder

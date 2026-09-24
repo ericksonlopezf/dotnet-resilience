@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Description>Core resilience pipeline builders, strategy registries, transient error classifiers, and Result integration for the EricksonLopez ecosystem.</Description>
-    <PackageTags>$(CommonPackageTags);pipeline;result;result-pattern;railway-oriented-programming;error-handling;retry;circuit-breaker;rate-limiting;hedging;fallback</PackageTags>
+    <PackageTags>$(CommonPackageTags);resilience-pipeline;result-pattern;railway-oriented-programming;transient-fault-handling;error-handling;retry;circuit-breaker;timeout;rate-limiting;fallback;hedging</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

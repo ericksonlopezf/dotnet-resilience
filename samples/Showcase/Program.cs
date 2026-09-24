@@ -7,12 +7,17 @@ using EricksonLopez.Resilience.Showcase.Levels;
 namespace EricksonLopez.Resilience.Showcase;
 
 /// <summary>
-/// Official executable showcase and architectural reference application for EricksonLopez.Resilience (.NET 10).
+/// Provides the main entry point and runner for the official executable showcase and architectural reference application.
 /// </summary>
 public static class Program
 {
     private const string Separator = "================================================================================";
 
+    /// <summary>
+    /// Executes the showcase console application using the specified command-line arguments.
+    /// </summary>
+    /// <param name="args">The command-line arguments specifying the level or recipe mode to execute.</param>
+    /// <returns>A task representing the asynchronous operation that yields the process exit code.</returns>
     public static async Task<int> Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -70,6 +75,10 @@ public static class Program
                     await Level10EnterpriseArchitecture.RunAsync();
                     break;
 
+                case "11" or "level11":
+                    await Level11ComprehensiveCoverage.RunAsync();
+                    break;
+
                 case "cookbook":
                     await CookbookRecipes.RunAllAsync();
                     break;
@@ -87,6 +96,7 @@ public static class Program
                     await Level8Customization.RunAsync();
                     await Level9Extensions.RunAsync();
                     await Level10EnterpriseArchitecture.RunAsync();
+                    await Level11ComprehensiveCoverage.RunAsync();
                     await CookbookRecipes.RunAllAsync();
                     break;
             }
