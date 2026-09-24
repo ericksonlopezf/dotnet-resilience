@@ -10,6 +10,13 @@ namespace EricksonLopez.Resilience.Options;
 public sealed class CircuitBreakerStrategyOptions : ResilienceStrategyOptions
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="CircuitBreakerStrategyOptions"/> class with default settings.
+    /// </summary>
+    public CircuitBreakerStrategyOptions()
+    {
+    }
+
+    /// <summary>
     /// Gets or sets the failure ratio (between 0.0 and 1.0) that causes the circuit to open.
     /// Default is 0.5 (50% failure rate).
     /// </summary>

@@ -1,7 +1,10 @@
 # ADR-018: Deferral of DI/Polly Engine Separation (L1)
 
 ## Status
-**Deferred** — Planned for v2.0.0 as a potentially breaking change
+Deferred — Planned for v2.0.0 as a potentially breaking change
+
+## Date
+2026-09-04
 
 ## Context
 Currently, `EricksonLopez.Resilience.DependencyInjection` registers both the ecosystem abstractions **and** the Polly engine adapter via `PollyResilienceRegistration`. This means that calling `AddEricksonLopezResilience()` implicitly wires Polly as the execution engine. While ADR-001 guarantees that Application Layer code never references Polly directly, the DI registration package itself transitively depends on `EricksonLopez.Resilience.Polly`.

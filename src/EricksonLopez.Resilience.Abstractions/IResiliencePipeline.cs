@@ -18,6 +18,10 @@ public interface IResiliencePipeline
     /// <param name="context">The resilience context carrying execution metadata and cancellation token.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A value task representing the asynchronous operation. The task result contains the value produced by <paramref name="operation"/>.</returns>
+    /// <exception cref="Exceptions.CircuitBrokenException">The circuit breaker rejected the operation because the circuit is open.</exception>
+    /// <exception cref="Exceptions.ResilienceTimeoutException">The operation timed out according to the configured timeout limit.</exception>
+    /// <exception cref="Exceptions.RateLimitRejectedException">The rate limiter rejected the operation due to limit exhaustion.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="operation"/> or <paramref name="context"/> is <see langword="null"/>.</exception>
     ValueTask<TResult> ExecuteAsync<TResult>(
         Func<ResilienceContext, ValueTask<TResult>> operation,
         ResilienceContext context,
@@ -30,6 +34,10 @@ public interface IResiliencePipeline
     /// <param name="operation">The asynchronous operation accepting a cancellation token.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A value task representing the asynchronous operation. The task result contains the value produced by <paramref name="operation"/>.</returns>
+    /// <exception cref="Exceptions.CircuitBrokenException">The circuit breaker rejected the operation because the circuit is open.</exception>
+    /// <exception cref="Exceptions.ResilienceTimeoutException">The operation timed out according to the configured timeout limit.</exception>
+    /// <exception cref="Exceptions.RateLimitRejectedException">The rate limiter rejected the operation due to limit exhaustion.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="operation"/> is <see langword="null"/>.</exception>
     ValueTask<TResult> ExecuteAsync<TResult>(
         Func<CancellationToken, ValueTask<TResult>> operation,
         CancellationToken cancellationToken = default);
@@ -41,6 +49,10 @@ public interface IResiliencePipeline
     /// <param name="context">The resilience context carrying execution metadata and cancellation token.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A value task representing the asynchronous operation.</returns>
+    /// <exception cref="Exceptions.CircuitBrokenException">The circuit breaker rejected the operation because the circuit is open.</exception>
+    /// <exception cref="Exceptions.ResilienceTimeoutException">The operation timed out according to the configured timeout limit.</exception>
+    /// <exception cref="Exceptions.RateLimitRejectedException">The rate limiter rejected the operation due to limit exhaustion.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="operation"/> or <paramref name="context"/> is <see langword="null"/>.</exception>
     ValueTask ExecuteAsync(
         Func<ResilienceContext, ValueTask> operation,
         ResilienceContext context,
@@ -52,6 +64,10 @@ public interface IResiliencePipeline
     /// <param name="operation">The asynchronous action accepting a cancellation token.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A value task representing the asynchronous operation.</returns>
+    /// <exception cref="Exceptions.CircuitBrokenException">The circuit breaker rejected the operation because the circuit is open.</exception>
+    /// <exception cref="Exceptions.ResilienceTimeoutException">The operation timed out according to the configured timeout limit.</exception>
+    /// <exception cref="Exceptions.RateLimitRejectedException">The rate limiter rejected the operation due to limit exhaustion.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="operation"/> is <see langword="null"/>.</exception>
     ValueTask ExecuteAsync(
         Func<CancellationToken, ValueTask> operation,
         CancellationToken cancellationToken = default);

@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Description>EricksonLopez.Mediator pipeline behavior integration for resilient request handling with zero-allocation continuations.</Description>
-    <PackageTags>$(CommonPackageTags);mediator;cqrs;pipeline-behavior;middleware</PackageTags>
+    <PackageTags>$(CommonPackageTags);mediator;cqrs;pipeline-behavior;clean-architecture</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

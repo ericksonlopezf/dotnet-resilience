@@ -6,12 +6,14 @@ using EricksonLopez.Resilience.Polly.Builders;
 namespace EricksonLopez.Resilience.Polly.Registration;
 
 /// <summary>
-/// Registers the Polly execution engine as the active pipeline compilation provider for <see cref="ResiliencePipelineBuilder"/>.
+/// Provides methods for registering the Polly execution engine as the active pipeline compilation provider for <see cref="ResiliencePipelineBuilder"/>.
 /// </summary>
 public static class PollyResilienceRegistration
 {
     private static bool _initialized;
-    private static readonly object SyncLock = new();
+    private static readonly object _syncLock = new();
+
+    internal static object SyncLock => _syncLock;
 
     /// <summary>
     /// Initializes and configures Polly as the default resilience execution adapter for the ecosystem.
@@ -23,7 +25,7 @@ public static class PollyResilienceRegistration
             return;
         }
 
-        lock (SyncLock)
+        lock (_syncLock)
         {
             if (_initialized)
             {

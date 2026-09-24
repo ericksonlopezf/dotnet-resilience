@@ -61,7 +61,7 @@ public sealed class ServiceCollectionExtensionsTests
         services.AddResiliencePolicy<FastTimeoutPolicy>();
 
         // Assert - verify both AddEricksonLopezResilience and singleton registration
-        services.Should().Contain(sd => sd.ServiceType == typeof(IResiliencePolicy) && sd.ImplementationInstance is FastTimeoutPolicy);
+        services.Should().Contain(sd => sd.ServiceType == typeof(IResiliencePolicy) && sd.ImplementationType == typeof(FastTimeoutPolicy));
         services.Should().Contain(sd => sd.ServiceType == typeof(ResiliencePolicyRegistry));
 
         var sp = services.BuildServiceProvider();
@@ -76,7 +76,7 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddResiliencePolicy("direct-named", b => { });
+        services.AddResiliencePolicy("direct-named", (Action<IResiliencePipelineBuilder>)(b => { }));
 
         // Assert - verify both AddEricksonLopezResilience and named policy registration
         services.Should().Contain(sd => sd.ServiceType == typeof(NamedPolicyRegistration));
@@ -246,7 +246,7 @@ public sealed class ServiceCollectionExtensionsTests
         IServiceCollection? services = null;
 
         // Act
-        Action act = () => services!.AddResiliencePolicy("dynamic-policy", b => { });
+        Action act = () => services!.AddResiliencePolicy("dynamic-policy", (Action<IResiliencePipelineBuilder>)(b => { }));
 
         // Assert
         act.Should().Throw<ArgumentNullException>();
@@ -262,7 +262,7 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        Action act = () => services.AddResiliencePolicy(policyName!, b => { });
+        Action act = () => services.AddResiliencePolicy(policyName!, (Action<IResiliencePipelineBuilder>)(b => { }));
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -275,7 +275,7 @@ public sealed class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        Action act = () => services.AddResiliencePolicy("dynamic-policy", null!);
+        Action act = () => services.AddResiliencePolicy("dynamic-policy", (Action<IResiliencePipelineBuilder>)null!);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

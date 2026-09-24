@@ -24,10 +24,10 @@ public sealed class ResilienceOptionsTests
         result.Should().BeSameAs(options);
         options.NamedRegistrations.Should().HaveCount(1);
         options.NamedRegistrations[0].Name.Should().Be("test-policy");
-        options.NamedRegistrations[0].Configure.Should().BeSameAs(configure);
+        options.NamedRegistrations[0].Configure.Should().NotBeNull();
 
         var builder = new ResiliencePipelineBuilder("test-policy");
-        options.NamedRegistrations[0].Configure(builder);
+        options.NamedRegistrations[0].Configure(builder, null!);
         executed.Should().BeTrue();
     }
 

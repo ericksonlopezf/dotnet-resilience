@@ -1,7 +1,10 @@
 # ADR-010: Parallel Speculative Hedging Strategy Architecture
 
 ## Status
-**Accepted**
+Accepted
+
+## Date
+2026-09-04
 
 ## Context
 In high-throughput, low-latency microservices, tail latency (p95/p99) is frequently degraded by transient network congestion or slow replica nodes. **Hedging** addresses this by launching parallel speculative attempts if the primary execution does not complete within a specified delay threshold, returning the result of whichever attempt finishes first.

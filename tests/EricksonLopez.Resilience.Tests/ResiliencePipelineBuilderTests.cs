@@ -45,21 +45,21 @@ public sealed class ResiliencePipelineBuilderTests
     }
 
     [Fact]
-    public void Build_WithoutFactory_ReturnsPassthroughPipeline()
+    public void Build_WithoutFactory_ThrowsInvalidOperationException()
     {
         // Arrange
         var builder = new ResiliencePipelineBuilder("unconfigured-pipeline");
         var typedBuilder = new ResiliencePipelineBuilder<double>("typed-unconfigured");
 
         // Act
-        var pipeline = builder.Build();
-        var typedPipeline = typedBuilder.Build();
+        var act1 = () => builder.Build();
+        var act2 = () => typedBuilder.Build();
 
         // Assert
-        pipeline.Should().BeOfType<PassthroughResiliencePipeline>()
-            .Which.Name.Should().Be("unconfigured-pipeline");
-        typedPipeline.Should().BeOfType<PassthroughResiliencePipeline<double>>()
-            .Which.Name.Should().Be("typed-unconfigured");
+        act1.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Cannot compile resilience pipeline*");
+        act2.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Cannot compile typed resilience pipeline*");
     }
 
     [Fact]
@@ -148,7 +148,7 @@ public sealed class ResiliencePipelineBuilderTests
             options.FailureRatio = 1.0;
             options.MinimumThroughput = 1;
             options.SamplingDuration = TimeSpan.FromMilliseconds(1);
-            options.BreakDuration = TimeSpan.FromMilliseconds(1);
+            options.BreakDuration = TimeSpan.FromMilliseconds(500);
         });
 
         builder.Strategies.Should().ContainSingle();
@@ -183,9 +183,9 @@ public sealed class ResiliencePipelineBuilderTests
         actSamplingZero.Should().Throw<ResilienceConfigurationException>()
             .WithMessage("CircuitBreaker SamplingDuration must be greater than TimeSpan.Zero.");
 
-        var actBreakZero = () => builder.AddCircuitBreaker(opt => opt.BreakDuration = TimeSpan.Zero);
+        var actBreakZero = () => builder.AddCircuitBreaker(opt => opt.BreakDuration = TimeSpan.FromMilliseconds(499));
         actBreakZero.Should().Throw<ResilienceConfigurationException>()
-            .WithMessage("CircuitBreaker BreakDuration must be greater than TimeSpan.Zero.");
+            .WithMessage("CircuitBreaker BreakDuration must be greater than or equal to 500 milliseconds.");
     }
 
     [Fact]
@@ -425,13 +425,13 @@ public sealed class ResiliencePipelineBuilderTests
     {
         var builder = new ResiliencePipelineBuilder<string>("typed-cb");
 
-        // Valid boundary: FailureRatio == 1.0, MinimumThroughput == 1, SamplingDuration > Zero, BreakDuration > Zero
+        // Valid boundary: FailureRatio == 1.0, MinimumThroughput == 1, SamplingDuration > Zero, BreakDuration >= 500ms
         builder.AddCircuitBreaker(opt =>
         {
             opt.FailureRatio = 1.0;
             opt.MinimumThroughput = 1;
             opt.SamplingDuration = TimeSpan.FromMilliseconds(5);
-            opt.BreakDuration = TimeSpan.FromMilliseconds(5);
+            opt.BreakDuration = TimeSpan.FromMilliseconds(500);
         });
         builder.Strategies.Should().ContainSingle();
 
@@ -441,7 +441,7 @@ public sealed class ResiliencePipelineBuilderTests
         var actRatioHigh = () => builder.AddCircuitBreaker(opt => opt.FailureRatio = 1.01);
         var actThroughput = () => builder.AddCircuitBreaker(opt => opt.MinimumThroughput = 0);
         var actSampling = () => builder.AddCircuitBreaker(opt => opt.SamplingDuration = TimeSpan.Zero);
-        var actBreak = () => builder.AddCircuitBreaker(opt => opt.BreakDuration = TimeSpan.Zero);
+        var actBreak = () => builder.AddCircuitBreaker(opt => opt.BreakDuration = TimeSpan.FromMilliseconds(499));
 
         actNull.Should().Throw<ArgumentNullException>();
         actNullConfig.Should().Throw<ArgumentNullException>();
@@ -454,7 +454,7 @@ public sealed class ResiliencePipelineBuilderTests
         actSampling.Should().Throw<ResilienceConfigurationException>()
             .WithMessage("CircuitBreaker SamplingDuration must be greater than TimeSpan.Zero.");
         actBreak.Should().Throw<ResilienceConfigurationException>()
-            .WithMessage("CircuitBreaker BreakDuration must be greater than TimeSpan.Zero.");
+            .WithMessage("CircuitBreaker BreakDuration must be greater than or equal to 500 milliseconds.");
     }
 
     [Fact]

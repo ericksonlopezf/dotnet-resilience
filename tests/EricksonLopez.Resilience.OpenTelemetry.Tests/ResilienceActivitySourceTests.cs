@@ -15,7 +15,7 @@ public sealed class ResilienceActivitySourceTests
     {
         // Assert
         ResilienceActivitySource.SourceName.Should().Be("EricksonLopez.Resilience");
-        ResilienceActivitySource.SourceVersion.Should().Be("1.0.0");
+        ResilienceActivitySource.SourceVersion.Should().Be("2.0.0");
     }
 
     [Fact]

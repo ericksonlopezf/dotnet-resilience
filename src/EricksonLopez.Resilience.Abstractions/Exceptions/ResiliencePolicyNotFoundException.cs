@@ -1,5 +1,4 @@
 // Copyright © Erickson Lopez. MIT License.
-using System;
 
 namespace EricksonLopez.Resilience.Exceptions;
 

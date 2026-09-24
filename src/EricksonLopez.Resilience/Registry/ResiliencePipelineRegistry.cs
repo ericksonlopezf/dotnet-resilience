@@ -15,6 +15,13 @@ public sealed class ResiliencePipelineRegistry : IResiliencePipelineRegistry
     private readonly ConcurrentDictionary<string, object> _typedPipelines = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="ResiliencePipelineRegistry"/> class.
+    /// </summary>
+    public ResiliencePipelineRegistry()
+    {
+    }
+
+    /// <summary>
     /// Registers a compiled resilience pipeline under the specified policy name.
     /// </summary>
     /// <param name="policyName">The unique policy name.</param>

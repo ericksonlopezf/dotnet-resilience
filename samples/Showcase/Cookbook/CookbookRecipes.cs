@@ -1,7 +1,7 @@
-using System.Diagnostics.CodeAnalysis;
 // Copyright © Erickson Lopez. MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,9 +27,11 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Cookbook;
 
 /// <summary>
-/// Cookbook: Official recipe collection for production scenarios.
-/// Each recipe includes: Problem, Solution, Complete Code, Explanation, Best Practices, and Common Pitfalls.
+/// Provides official enterprise recipe demonstrations for production scenarios.
 /// </summary>
+/// <remarks>
+/// Each recipe illustrates solutions, configurations, best practices, and common pitfalls.
+/// </remarks>
 [SuppressMessage("Minor Code Smell", "S1075:URIs should not be hardcoded", Justification = "Showcase sample URI")]
 public static class CookbookRecipes
 {
@@ -37,6 +39,10 @@ public static class CookbookRecipes
     private const string SectionDivider = "--------------------------------------------------------------------------------";
     private const string HeaderDivider = "\n--------------------------------------------------------------------------------";
 
+    /// <summary>
+    /// Executes all cookbook recipe demonstrations sequentially.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunAllAsync()
     {
         Console.WriteLine(MainDivider);
@@ -59,6 +65,9 @@ public static class CookbookRecipes
         await RunRecipe14ImmutableContextChainingAsync();
         await RunRecipe15FallbackOptionsAdvancedAsync();
         await RunRecipe16DirectOptionsObjectOverloadsAsync();
+        await RunRecipe17ServiceProviderConfigAsync();
+        await RunRecipe18ExceptionSanitizationAsync();
+        await RunRecipe19HedgedActionGeneratorAsync();
 
         Console.WriteLine(MainDivider);
         Console.WriteLine(" [✓] ALL COOKBOOK RECIPES EXECUTED SUCCESSFULLY");
@@ -67,8 +76,9 @@ public static class CookbookRecipes
 
     #region Recipe 1
     /// <summary>
-    /// Recipe 1: Retrying Asynchronous Operations Based on Domain Result<T>.
+    /// Executes Recipe 1 demonstrating automatic retry of transient errors with Result types.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe1ResultRetryAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -121,8 +131,9 @@ public static class CookbookRecipes
 
     #region Recipe 2
     /// <summary>
-    /// Recipe 2: Circuit Breaker Protection and Safe Fallback.
+    /// Executes Recipe 2 demonstrating cascading failure prevention with circuit breakers and fallback.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe2CircuitBreakerFallbackAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -186,8 +197,9 @@ public static class CookbookRecipes
 
     #region Recipe 3
     /// <summary>
-    /// Recipe 3: Fresh Transactions per Attempt and Idempotency Key Preservation.
+    /// Executes Recipe 3 demonstrating transactional boundary and idempotency preservation across retries.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe3TransactionAndIdempotencyAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -238,8 +250,9 @@ public static class CookbookRecipes
 
     #region Recipe 4
     /// <summary>
-    /// Recipe 4: Decoupled Mediator Integration via IResilientRequest.
+    /// Executes Recipe 4 demonstrating resilient pipeline behavior integration with mediator requests.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe4MediatorResilienceAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -288,8 +301,9 @@ public static class CookbookRecipes
 
     #region Recipe 5
     /// <summary>
-    /// Recipe 5: Typed HttpClient Configuration with DelegatingHandler and Observability.
+    /// Executes Recipe 5 demonstrating typed HTTP client configuration with resilient delegating handlers and OpenTelemetry.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe5ResilientHttpClientAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -322,8 +336,9 @@ public static class CookbookRecipes
 
     #region Recipe 6
     /// <summary>
-    /// Recipe 6: Reusable Strongly-Typed Resilience Policy Definitions.
+    /// Executes Recipe 6 demonstrating reusable strongly-typed resilience policy definitions.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe6TypedPolicyAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -361,8 +376,9 @@ public static class CookbookRecipes
 
     #region Recipe 7
     /// <summary>
-    /// Recipe 7: Sliding Window Rate Limiting and Traffic Throttling.
+    /// Executes Recipe 7 demonstrating sliding window rate limiting and traffic throttling.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe7SlidingWindowRateLimitingAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -405,8 +421,9 @@ public static class CookbookRecipes
 
     #region Recipe 8
     /// <summary>
-    /// Recipe 8: Strongly-Typed Fallback with Custom Fallback Actions.
+    /// Executes Recipe 8 demonstrating strongly-typed fallback pipelines with custom fallback action generation.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe8TypedFallbackPipelineAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -453,8 +470,9 @@ public static class CookbookRecipes
 
     #region Recipe 9
     /// <summary>
-    /// Recipe 9: Configuration-Driven Resilience via appsettings.json / IConfiguration.
+    /// Executes Recipe 9 demonstrating configuration-driven dynamic policy setup via configuration sections.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe9ConfigurationDrivenResilienceAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -502,8 +520,9 @@ public static class CookbookRecipes
 
     #region Recipe 10
     /// <summary>
-    /// Recipe 10: Speculative Parallel Hedging for Idempotent Queries.
+    /// Executes Recipe 10 demonstrating speculative parallel hedging for idempotent queries.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe10SpeculativeParallelHedgingAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -548,8 +567,9 @@ public static class CookbookRecipes
 
     #region Recipe 11
     /// <summary>
-    /// Recipe 11: RateLimitRejectedException — Handling quota exhaustion with Retry-After.
+    /// Executes Recipe 11 demonstrating handling of rate limiter quota exhaustion with retry-after metadata.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe11RateLimitRejectedExceptionAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -601,8 +621,9 @@ public static class CookbookRecipes
 
     #region Recipe 12
     /// <summary>
-    /// Recipe 12: All BackoffType Variants — Constant, Linear, Exponential, ExponentialWithJitter.
+    /// Executes Recipe 12 demonstrating the behavior and configuration of all backoff strategy variants.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe12BackoffTypeVariantsAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -672,8 +693,9 @@ public static class CookbookRecipes
 
     #region Recipe 13
     /// <summary>
-    /// Recipe 13: RateLimiterType Variants — SlidingWindow, FixedWindow, TokenBucket, Concurrency.
+    /// Executes Recipe 13 demonstrating the configuration of all rate limiter algorithm variants.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe13RateLimiterTypeVariantsAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -713,8 +735,9 @@ public static class CookbookRecipes
 
     #region Recipe 14
     /// <summary>
-    /// Recipe 14: ResilienceContext Immutable Builder Chain (WithOperationName, WithCorrelationId, WithTenantId, WithAttemptNumber).
+    /// Executes Recipe 14 demonstrating immutable builder chaining for resilience contexts.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static ValueTask RunRecipe14ImmutableContextChainingAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -746,8 +769,9 @@ public static class CookbookRecipes
 
     #region Recipe 15
     /// <summary>
-    /// Recipe 15: Advanced FallbackStrategyOptions<TResult> — OnFallback, ShouldHandleException, ShouldHandleResult.
+    /// Executes Recipe 15 demonstrating advanced fallback strategy options including custom callbacks and predicates.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe15FallbackOptionsAdvancedAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -809,8 +833,9 @@ public static class CookbookRecipes
 
     #region Recipe 16
     /// <summary>
-    /// Recipe 16: Direct Options-Object Overloads for AddRateLimiter and AddHedging (untyped).
+    /// Executes Recipe 16 demonstrating direct options object overloads for rate limiter and hedging strategies.
     /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunRecipe16DirectOptionsObjectOverloadsAsync()
     {
         Console.WriteLine(HeaderDivider);
@@ -878,6 +903,149 @@ public static class CookbookRecipes
         Console.WriteLine($" [EXECUTED CODE] Result: '{result}'");
         Console.WriteLine(" [BEST PRACTICES]: Pre-construct and validate options once; pass the same instance to multiple pipelines.");
         Console.WriteLine(" [COMMON PITFALLS]: Mutating shared options objects after passing them to builders — options are not copied.");
+    }
+    #endregion
+
+    #region Recipe 17
+    /// <summary>
+    /// Executes Recipe 17 demonstrating dynamic policy configuration using dependency injection service resolution.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
+    public static async ValueTask RunRecipe17ServiceProviderConfigAsync()
+    {
+        Console.WriteLine(HeaderDivider);
+        Console.WriteLine(" RECIPE 17: Dynamic Policy Configuration via IServiceProvider");
+        Console.WriteLine(SectionDivider);
+        Console.WriteLine(" [PROBLEM]: Hardcoding resilience parameters prevents adapting to external runtime");
+        Console.WriteLine("            options or tenant-specific settings resolved from the DI container.");
+        Console.WriteLine(" [SOLUTION]: Use the AddResiliencePolicy(name, (builder, sp) => { ... }) overload");
+        Console.WriteLine("            to resolve registered dependencies directly from IServiceProvider.");
+
+        var services = new ServiceCollection();
+        services.AddSingleton(new GatewaySettings(TimeoutSeconds: 3, MaxRetries: 2));
+        services.AddEricksonLopezResilience();
+
+        services.AddResiliencePolicy("dynamic-gateway-policy", (builder, sp) =>
+        {
+            var settings = sp.GetRequiredService<GatewaySettings>();
+            builder
+                .AddTimeout(TimeSpan.FromSeconds(settings.TimeoutSeconds))
+                .AddRetry(opt =>
+                {
+                    opt.MaxRetryAttempts = settings.MaxRetries;
+                    opt.Delay = TimeSpan.FromMilliseconds(50);
+                    opt.BackoffType = BackoffType.Linear;
+                });
+        });
+
+        var spProvider = services.BuildServiceProvider();
+        var executor = spProvider.GetRequiredService<IResilienceExecutor>();
+
+        var result = await executor.ExecuteAsync(
+            "dynamic-gateway-policy",
+            async (CancellationToken ct) =>
+            {
+                await Task.Delay(10, ct);
+                return "Operation completed using policy configured via IServiceProvider.";
+            });
+
+        Console.WriteLine($" [EXECUTED CODE] Result: '{result}'");
+        Console.WriteLine(" [BEST PRACTICES]: Use IServiceProvider overloads when policy parameters depend on DI-registered options.");
+        Console.WriteLine(" [COMMON PITFALLS]: Resolving scoped services during singleton pipeline build time.");
+    }
+
+    private sealed record GatewaySettings(int TimeoutSeconds, int MaxRetries);
+    #endregion
+
+    #region Recipe 18
+    /// <summary>
+    /// Executes Recipe 18 demonstrating privacy-compliant distributed tracing via exception message sanitization.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
+    public static async ValueTask RunRecipe18ExceptionSanitizationAsync()
+    {
+        Console.WriteLine(HeaderDivider);
+        Console.WriteLine(" RECIPE 18: Privacy-Compliant Tracing with ExceptionSanitizer");
+        Console.WriteLine(SectionDivider);
+        Console.WriteLine(" [PROBLEM]: Distributed trace spans might leak sensitive credentials, bearer tokens,");
+        Console.WriteLine("            or customer PII embedded in exception messages.");
+        Console.WriteLine(" [SOLUTION]: Register ResilienceActivitySource.ExceptionSanitizer to redact");
+        Console.WriteLine("            confidential strings before exceptions are recorded on Activity spans.");
+
+        var previousSanitizer = ResilienceActivitySource.ExceptionSanitizer;
+        try
+        {
+            ResilienceActivitySource.ExceptionSanitizer = ex =>
+            {
+                var sanitized = ex.Message.Replace("ApiKey=SECRET-API-KEY-12345", "ApiKey=[REDACTED]", StringComparison.OrdinalIgnoreCase);
+                return (sanitized, ex.StackTrace ?? string.Empty);
+            };
+
+            using var activity = ResilienceActivitySource.StartExecutionActivity("secure-policy", "PaymentDispatch");
+            var exceptionWithSecret = new InvalidOperationException("Unauthorized request with ApiKey=SECRET-API-KEY-12345");
+            ResilienceActivitySource.RecordException(activity, exceptionWithSecret);
+
+            Console.WriteLine("    [✓] Exception recorded on activity span with sanitized content.");
+        }
+        finally
+        {
+            ResilienceActivitySource.ExceptionSanitizer = previousSanitizer;
+        }
+
+        Console.WriteLine(" [EXECUTED CODE] Exception telemetry scrubbed successfully.");
+        Console.WriteLine(" [BEST PRACTICES]: Implement regex or deterministic token redaction in ExceptionSanitizer.");
+        Console.WriteLine(" [COMMON PITFALLS]: Leaving ExceptionSanitizer unconfigured in systems processing HIPAA/PCI-DSS data.");
+        await Task.CompletedTask;
+    }
+    #endregion
+
+    #region Recipe 19
+    /// <summary>
+    /// Executes Recipe 19 demonstrating active-active speculative hedging with custom action generation.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
+    public static async ValueTask RunRecipe19HedgedActionGeneratorAsync()
+    {
+        Console.WriteLine(HeaderDivider);
+        Console.WriteLine(" RECIPE 19: Speculative Hedging across Alternate Replicas with HedgedActionGenerator");
+        Console.WriteLine(SectionDivider);
+        Console.WriteLine(" [PROBLEM]: When a primary service replica experiences tail latency, re-hedging to");
+        Console.WriteLine("            the same server fails to mitigate node-level degradation.");
+        Console.WriteLine(" [SOLUTION]: Configure HedgedActionGenerator on HedgingStrategyOptions<TResult> to");
+        Console.WriteLine("            dispatch speculative attempts to alternate replica endpoints.");
+
+        PollyResilienceRegistration.RegisterTypedPipeline<string>();
+
+        var builder = new ResiliencePipelineBuilder<string>("ActiveActiveHedgingPipeline")
+            .AddHedging(opt =>
+            {
+                opt.MaxHedgedAttempts = 1;
+                opt.Delay = TimeSpan.FromMilliseconds(50);
+                opt.HedgedActionGenerator = ctx =>
+                {
+                    Console.WriteLine($"    [Recipe 19 - Hedge] Spawning speculative request to Secondary Cluster (Attempt #{ctx.AttemptNumber})...");
+                    return async () =>
+                    {
+                        await Task.Delay(10);
+                        return "Response from Secondary Cluster (us-east-2)";
+                    };
+                };
+            });
+
+        var pipeline = builder.Build();
+
+        var result = await pipeline.ExecuteAsync(
+            async (ResilienceContext ctx) =>
+            {
+                Console.WriteLine("    [Recipe 19 - Primary] Primary cluster (us-east-1) delayed (simulating 150ms tail spike)...");
+                await Task.Delay(150, ctx.CancellationToken);
+                return "Response from Primary Cluster (us-east-1)";
+            },
+            ResilienceContext.Create("ActiveActiveHedgingPipeline"));
+
+        Console.WriteLine($" [EXECUTED CODE] Result received: '{result}'");
+        Console.WriteLine(" [BEST PRACTICES]: Point HedgedActionGenerator to independent availability zones or read-replicas.");
+        Console.WriteLine(" [COMMON PITFALLS]: Using Hedging with non-idempotent mutations, leading to duplicate resource creation.");
     }
     #endregion
 }

@@ -2,8 +2,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EricksonLopez.Resilience.Exceptions;
-using global::Polly;
 using global::Polly.CircuitBreaker;
 using global::Polly.RateLimiting;
 using global::Polly.Timeout;
@@ -11,7 +9,7 @@ using global::Polly.Timeout;
 namespace EricksonLopez.Resilience.Polly.Adapters;
 
 /// <summary>
-/// Implements <see cref="IResiliencePipeline{TResult}"/> backed by a compiled Polly v8 <see cref="global::Polly.ResiliencePipeline{TResult}"/>.
+/// Provides an <see cref="IResiliencePipeline{TResult}"/> implementation backed by a compiled Polly v8 <see cref="global::Polly.ResiliencePipeline{TResult}"/>.
 /// </summary>
 /// <typeparam name="TResult">The result type of operations executed by this pipeline.</typeparam>
 public sealed class PollyResiliencePipeline<TResult> : IResiliencePipeline<TResult>
@@ -52,7 +50,11 @@ public sealed class PollyResiliencePipeline<TResult> : IResiliencePipeline<TResu
             context.OperationName,
             context.CorrelationId,
             context.TenantId,
-            effectiveToken);
+            effectiveToken)
+        {
+            AttemptNumber = context.AttemptNumber
+        };
+        context.CopyPropertiesTo(initialContext);
 
         var pollyContext = PollyContextAdapter.ToPollyContext(initialContext);
         try
@@ -60,13 +62,24 @@ public sealed class PollyResiliencePipeline<TResult> : IResiliencePipeline<TResu
             return await _pipeline.ExecuteAsync(
                 async (pCtx, state) =>
                 {
+                    var ecoCtx = PollyContextAdapter.GetEcosystemContext(pCtx) ?? initialContext;
                     var executionContext = new ResilienceContext(
                         context.PolicyName,
                         context.OperationName,
                         context.CorrelationId,
                         context.TenantId,
-                        pCtx.CancellationToken);
-                    return await state(executionContext).ConfigureAwait(false);
+                        pCtx.CancellationToken)
+                    {
+                        AttemptNumber = ecoCtx.AttemptNumber
+                    };
+                    ecoCtx.CopyPropertiesTo(executionContext);
+
+                    var result = await state(executionContext).ConfigureAwait(false);
+
+                    executionContext.CopyPropertiesTo(ecoCtx);
+                    executionContext.CopyPropertiesTo(context);
+                    context.AttemptNumber = executionContext.AttemptNumber;
+                    return result;
                 },
                 pollyContext,
                 operation).ConfigureAwait(false);

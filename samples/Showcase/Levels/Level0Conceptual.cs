@@ -5,10 +5,14 @@ using System.Threading.Tasks;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 0 — Conceptual: Resilience Fundamentals, Ecosystem Invariants, and Architectural Philosophy.
+/// Provides conceptual demonstrations illustrating resilience fundamentals, ecosystem invariants, and architectural philosophy.
 /// </summary>
 public static class Level0Conceptual
 {
+    /// <summary>
+    /// Executes the conceptual resilience demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static ValueTask RunAsync()
     {
         Console.WriteLine("================================================================================");

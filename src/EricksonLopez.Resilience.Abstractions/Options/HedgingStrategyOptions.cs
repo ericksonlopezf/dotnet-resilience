@@ -16,6 +16,13 @@ namespace EricksonLopez.Resilience.Options;
 public sealed class HedgingStrategyOptions : ResilienceStrategyOptions
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="HedgingStrategyOptions"/> class with default settings.
+    /// </summary>
+    public HedgingStrategyOptions()
+    {
+    }
+
+    /// <summary>
     /// Gets or sets the maximum number of additional speculative retry attempts allowed.
     /// Default is 2 attempts.
     /// </summary>

@@ -21,10 +21,10 @@ public sealed class NamedPolicyRegistrationTests
 
         // Assert
         reg.Name.Should().Be("test-policy");
-        reg.Configure.Should().BeSameAs(configure);
+        reg.Configure.Should().NotBeNull();
 
         var builder = new ResiliencePipelineBuilder("test-policy");
-        reg.Configure(builder);
+        reg.Configure(builder, null!);
         executed.Should().BeTrue();
     }
 }

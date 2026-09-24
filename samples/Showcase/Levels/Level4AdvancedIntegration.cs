@@ -15,10 +15,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EricksonLopez.Resilience.Showcase.Levels;
 
 /// <summary>
-/// Level 4 — Advanced Integration: Mediator, Pipeline Behaviors, Transactional Boundaries, and Idempotency.
+/// Provides advanced integration demonstrations illustrating mediator pipeline behaviors, transactional boundaries, and idempotency.
 /// </summary>
 public static class Level4AdvancedIntegration
 {
+    /// <summary>
+    /// Executes the advanced integration resilience demonstration.
+    /// </summary>
+    /// <returns>A value task representing the asynchronous operation.</returns>
     public static async ValueTask RunAsync()
     {
         Console.WriteLine("================================================================================");
@@ -67,31 +71,56 @@ public static class Level4AdvancedIntegration
     }
 
     /// <summary>
-    /// Zero-allocation continuation struct compatible with Native AOT.
+    /// Represents a zero-allocation continuation struct compatible with Native AOT.
     /// </summary>
+    /// <typeparam name="T">The type of value returned by the continuation.</typeparam>
     public readonly struct StructContinuation<T> : INext<T>
     {
         private readonly Func<ValueTask<T>> _callback;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StructContinuation{T}"/> struct.
+        /// </summary>
+        /// <param name="callback">The asynchronous callback delegate to invoke.</param>
         public StructContinuation(Func<ValueTask<T>> callback) => _callback = callback;
+
+        /// <inheritdoc/>
         public ValueTask<T> InvokeAsync() => _callback();
     }
 
     /// <summary>
-    /// Command implementing IResilientRequest declaring its execution policy.
+    /// Represents a command implementing <see cref="IResilientRequest"/> that declares its execution policy.
     /// </summary>
+    /// <param name="CustomerId">The unique identifier of the customer submitting the order.</param>
+    /// <param name="Total">The total monetary amount of the order.</param>
+    /// <param name="IdempotencyKey">The unique idempotency key for preventing duplicate executions.</param>
     public sealed record SubmitOrderCommand(string CustomerId, decimal Total, string IdempotencyKey)
         : ICommand<Result<Guid>>, IResilientRequest
     {
+        /// <inheritdoc/>
         public string ResiliencePolicy => "order-submission-policy";
     }
 
     /// <summary>
-    /// Handler simulating clean transactional boundary delimitation per retry attempt.
+    /// Provides a command handler that simulates transactional boundary delimitation per retry attempt.
     /// </summary>
     public sealed class SubmitOrderCommandHandler
     {
         private int _executionCount;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubmitOrderCommandHandler"/> class.
+        /// </summary>
+        public SubmitOrderCommandHandler()
+        {
+        }
+
+        /// <summary>
+        /// Handles the specified order submission command.
+        /// </summary>
+        /// <param name="request">The order command to process.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
+        /// <returns>A value task representing the asynchronous operation. The task result contains the created order identifier on success, or a domain error on failure.</returns>
         public async ValueTask<Result<Guid>> Handle(SubmitOrderCommand request, CancellationToken cancellationToken)
         {
             _executionCount++;
