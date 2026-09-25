@@ -89,8 +89,7 @@ public sealed class ResultRetryClassifier : IResultRetryClassifier, IErrorClassi
 
         // Framework timeout or Polly TimeoutRejectedException is transient and retryable if configured
         if (exception is Exceptions.ResilienceTimeoutException or TimeoutException
-            || exception.GetType().Name == "TimeoutRejectedException"
-            || exception.GetType().FullName == "Polly.Timeout.TimeoutRejectedException")
+            || exception.GetType().Name == "TimeoutRejectedException")
         {
             return RetryabilityDecision.Retry;
         }

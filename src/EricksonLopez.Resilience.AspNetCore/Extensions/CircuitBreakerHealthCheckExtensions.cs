@@ -33,13 +33,12 @@ public static class CircuitBreakerHealthCheckExtensions
         HealthStatus? failureStatus = null,
         IEnumerable<string>? tags = null)
     {
-        ArgumentNullException.ThrowIfNull(builder);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
-        ArgumentNullException.ThrowIfNull(stateAccessor);
 
-        return tags == null
-            ? builder.AddCheck(name, new ResilienceCircuitBreakerHealthCheck(policyName, stateAccessor), failureStatus)
-            : builder.AddCheck(name, new ResilienceCircuitBreakerHealthCheck(policyName, stateAccessor), failureStatus, tags);
+        return builder.AddCheck(
+            name,
+            new ResilienceCircuitBreakerHealthCheck(policyName, stateAccessor),
+            failureStatus,
+            tags!);
     }
 }

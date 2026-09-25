@@ -202,7 +202,6 @@ public sealed class PollyResilienceExecutor : IResilienceExecutor
         RecordExceptionTelemetry(ex, context);
         LogException(ex, context, elapsedMs);
 
-        activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
         ResilienceActivitySource.RecordException(activity, ex);
     }
 

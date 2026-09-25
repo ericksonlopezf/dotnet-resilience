@@ -143,8 +143,6 @@ public static class ResiliencePipelineBuilderExtensions
         TimeSpan? timeout = null,
         int maxRetries = 3)
     {
-        ArgumentNullException.ThrowIfNull(builder);
-
         return builder
             .AddTimeout(timeout ?? TimeSpan.FromSeconds(15))
             .AddResultRetry(opt =>
