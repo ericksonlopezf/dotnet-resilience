@@ -5,7 +5,7 @@ Enterprise-grade Clean Architecture resilience & fault-tolerance framework for m
 [![CI](https://img.shields.io/github/actions/workflow/status/ericksonlopezf/dotnet-resilience/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/ericksonlopezf/dotnet-resilience/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/ericksonlopezf/dotnet-resilience?style=for-the-badge&logo=codecov&logoColor=white)](https://codecov.io/gh/ericksonlopezf/dotnet-resilience)
 [![Quality Gate](https://img.shields.io/sonar/quality_gate/ericksonlopezf_dotnet-resilience?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/new_code?id=ericksonlopezf_dotnet-resilience)
-[![Mutation Score](https://img.shields.io/badge/Mutation_Score-%E2%89%A595%25-brightgreen?style=for-the-badge&logo=stryker&logoColor=white)](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/ci-cd-quality.md)
+[![Mutation Score](https://img.shields.io/badge/Mutation_Score-100%25-brightgreen?style=for-the-badge&logo=stryker&logoColor=white)](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/docs/ci-cd-quality.md)
 [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.Resilience?style=for-the-badge&logo=nuget&logoColor=white&color=512BD4)](https://www.nuget.org/packages/EricksonLopez.Resilience)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/EricksonLopez.Resilience?style=for-the-badge&logo=nuget&logoColor=white&color=004880)](https://www.nuget.org/packages/EricksonLopez.Resilience)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://github.com/ericksonlopezf/dotnet-resilience/blob/main/LICENSE)
