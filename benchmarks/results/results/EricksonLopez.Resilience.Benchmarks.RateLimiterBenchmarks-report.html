@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>EricksonLopez.Resilience.Benchmarks.RateLimiterBenchmarks-20261004-073700</title>
+<title>EricksonLopez.Resilience.Benchmarks.RateLimiterBenchmarks-20261011-080249</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -14,7 +14,7 @@
 <body>
 <pre><code>
 BenchmarkDotNet v0.15.8, Linux Ubuntu 24.04.5 LTS (Noble Numbat)
-AMD EPYC 7763 2.63GHz, 1 CPU, 4 logical and 2 physical cores
+AMD EPYC 7763 2.45GHz, 1 CPU, 4 logical and 2 physical cores
 .NET SDK 10.0.401
   [Host]    : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
   .NET 10.0 : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
@@ -26,9 +26,9 @@ AMD EPYC 7763 2.63GHz, 1 CPU, 4 logical and 2 physical cores
 <table>
 <thead><tr><th>Method      </th><th>Job</th><th>Runtime</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>PermittedExecution</td><td>.NET 10.0</td><td>.NET 10.0</td><td>353.7 ns</td><td>0.73 ns</td><td>0.64 ns</td><td>0.77</td><td>0.0110</td><td>184 B</td><td>1.00</td>
-</tr><tr><td>PermittedExecution</td><td>.NET 9.0</td><td>.NET 9.0</td><td>412.2 ns</td><td>1.68 ns</td><td>1.49 ns</td><td>0.90</td><td>0.0110</td><td>184 B</td><td>1.00</td>
-</tr><tr><td>PermittedExecution</td><td>.NET 8.0</td><td>.NET 8.0</td><td>459.7 ns</td><td>1.12 ns</td><td>1.05 ns</td><td>1.00</td><td>0.0110</td><td>184 B</td><td>1.00</td>
+</thead><tbody><tr><td>PermittedExecution</td><td>.NET 10.0</td><td>.NET 10.0</td><td>362.6 ns</td><td>0.96 ns</td><td>0.80 ns</td><td>0.79</td><td>0.0110</td><td>184 B</td><td>1.00</td>
+</tr><tr><td>PermittedExecution</td><td>.NET 9.0</td><td>.NET 9.0</td><td>395.0 ns</td><td>0.92 ns</td><td>0.82 ns</td><td>0.86</td><td>0.0110</td><td>184 B</td><td>1.00</td>
+</tr><tr><td>PermittedExecution</td><td>.NET 8.0</td><td>.NET 8.0</td><td>460.1 ns</td><td>2.41 ns</td><td>2.14 ns</td><td>1.00</td><td>0.0110</td><td>184 B</td><td>1.00</td>
 </tr></tbody></table>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>EricksonLopez.Resilience.Benchmarks.RetryStrategyBenchmarks-20261004-074149</title>
+<title>EricksonLopez.Resilience.Benchmarks.RetryStrategyBenchmarks-20261011-080745</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -14,7 +14,7 @@
 <body>
 <pre><code>
 BenchmarkDotNet v0.15.8, Linux Ubuntu 24.04.5 LTS (Noble Numbat)
-AMD EPYC 7763 2.63GHz, 1 CPU, 4 logical and 2 physical cores
+AMD EPYC 7763 2.45GHz, 1 CPU, 4 logical and 2 physical cores
 .NET SDK 10.0.401
   [Host]    : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
   .NET 10.0 : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
@@ -26,9 +26,9 @@ AMD EPYC 7763 2.63GHz, 1 CPU, 4 logical and 2 physical cores
 <table>
 <thead><tr><th>Method                 </th><th>Job</th><th>Runtime</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 10.0</td><td>.NET 10.0</td><td>418.5 ns</td><td>1.73 ns</td><td>1.62 ns</td><td>0.64</td><td>0.0100</td><td>168 B</td><td>1.00</td>
-</tr><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 9.0</td><td>.NET 9.0</td><td>505.1 ns</td><td>1.38 ns</td><td>1.29 ns</td><td>0.77</td><td>0.0095</td><td>168 B</td><td>1.00</td>
-</tr><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 8.0</td><td>.NET 8.0</td><td>653.0 ns</td><td>0.75 ns</td><td>0.66 ns</td><td>1.00</td><td>0.0095</td><td>168 B</td><td>1.00</td>
+</thead><tbody><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 10.0</td><td>.NET 10.0</td><td>431.7 ns</td><td>1.18 ns</td><td>1.11 ns</td><td>0.67</td><td>0.0100</td><td>168 B</td><td>1.00</td>
+</tr><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 9.0</td><td>.NET 9.0</td><td>486.0 ns</td><td>1.80 ns</td><td>1.60 ns</td><td>0.75</td><td>0.0095</td><td>168 B</td><td>1.00</td>
+</tr><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 8.0</td><td>.NET 8.0</td><td>647.9 ns</td><td>1.63 ns</td><td>1.52 ns</td><td>1.00</td><td>0.0095</td><td>168 B</td><td>1.00</td>
 </tr></tbody></table>
 </body>
 </html>
