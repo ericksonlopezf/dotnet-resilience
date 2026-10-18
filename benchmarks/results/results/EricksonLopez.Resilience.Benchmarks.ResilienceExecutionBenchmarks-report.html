@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>EricksonLopez.Resilience.Benchmarks.ResilienceExecutionBenchmarks-20261011-080403</title>
+<title>EricksonLopez.Resilience.Benchmarks.ResilienceExecutionBenchmarks-20261018-065124</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -15,29 +15,29 @@
 <pre><code>
 BenchmarkDotNet v0.15.8, Linux Ubuntu 24.04.5 LTS (Noble Numbat)
 AMD EPYC 7763 2.45GHz, 1 CPU, 4 logical and 2 physical cores
-.NET SDK 10.0.401
-  [Host]    : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
-  .NET 9.0  : .NET 9.0.20 (9.0.20, 9.0.2026.41315), X64 RyuJIT x86-64-v3
-  .NET 10.0 : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
-  .NET 8.0  : .NET 8.0.31 (8.0.31, 8.0.3126.42015), X64 RyuJIT x86-64-v3
+.NET SDK 10.0.402
+  [Host]    : .NET 10.0.13 (10.0.13, 10.0.1326.50504), X64 RyuJIT x86-64-v3
+  .NET 9.0  : .NET 9.0.21 (9.0.21, 9.0.2126.50404), X64 RyuJIT x86-64-v3
+  .NET 10.0 : .NET 10.0.13 (10.0.13, 10.0.1326.50504), X64 RyuJIT x86-64-v3
+  .NET 8.0  : .NET 8.0.32 (8.0.32, 8.0.3226.50405), X64 RyuJIT x86-64-v3
 </code></pre>
 <pre><code></code></pre>
 
 <table>
 <thead><tr><th>Method              </th><th>Job</th><th>Runtime</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>DirectPollyExecution</td><td>.NET 9.0</td><td>.NET 9.0</td><td>229.3 ns</td><td>0.47 ns</td><td>0.42 ns</td><td>0.91</td><td>-</td><td>-</td><td>NA</td>
-</tr><tr><td>DirectPollyExecution</td><td>.NET 10.0</td><td>.NET 10.0</td><td>240.9 ns</td><td>0.97 ns</td><td>0.86 ns</td><td>0.95</td><td>-</td><td>-</td><td>NA</td>
-</tr><tr><td>DirectPollyExecution</td><td>.NET 8.0</td><td>.NET 8.0</td><td>252.4 ns</td><td>0.77 ns</td><td>0.72 ns</td><td>1.00</td><td>-</td><td>-</td><td>NA</td>
-</tr><tr><td>EcosystemPipelineExecution</td><td>.NET 10.0</td><td>.NET 10.0</td><td>385.9 ns</td><td>1.70 ns</td><td>1.50 ns</td><td>1.53</td><td>0.0086</td><td>144 B</td><td>NA</td>
-</tr><tr><td>EcosystemPipelineExecution</td><td>.NET 9.0</td><td>.NET 9.0</td><td>429.3 ns</td><td>1.30 ns</td><td>1.15 ns</td><td>1.70</td><td>0.0086</td><td>144 B</td><td>NA</td>
-</tr><tr><td>ResultResilientExecution</td><td>.NET 10.0</td><td>.NET 10.0</td><td>490.2 ns</td><td>0.72 ns</td><td>0.64 ns</td><td>1.94</td><td>0.0086</td><td>144 B</td><td>NA</td>
-</tr><tr><td>EcosystemPipelineExecution</td><td>.NET 8.0</td><td>.NET 8.0</td><td>501.0 ns</td><td>1.32 ns</td><td>1.24 ns</td><td>1.99</td><td>0.0086</td><td>144 B</td><td>NA</td>
-</tr><tr><td>ResultResilientExecution</td><td>.NET 9.0</td><td>.NET 9.0</td><td>527.9 ns</td><td>0.55 ns</td><td>0.46 ns</td><td>2.09</td><td>0.0086</td><td>144 B</td><td>NA</td>
-</tr><tr><td>EcosystemExecutorExecution</td><td>.NET 10.0</td><td>.NET 10.0</td><td>533.9 ns</td><td>1.37 ns</td><td>1.28 ns</td><td>2.12</td><td>0.0086</td><td>144 B</td><td>NA</td>
-</tr><tr><td>ResultResilientExecution</td><td>.NET 8.0</td><td>.NET 8.0</td><td>576.5 ns</td><td>0.99 ns</td><td>0.88 ns</td><td>2.28</td><td>0.0086</td><td>144 B</td><td>NA</td>
-</tr><tr><td>EcosystemExecutorExecution</td><td>.NET 9.0</td><td>.NET 9.0</td><td>621.9 ns</td><td>2.29 ns</td><td>1.91 ns</td><td>2.46</td><td>0.0086</td><td>144 B</td><td>NA</td>
-</tr><tr><td>EcosystemExecutorExecution</td><td>.NET 8.0</td><td>.NET 8.0</td><td>647.4 ns</td><td>1.46 ns</td><td>1.30 ns</td><td>2.57</td><td>0.0086</td><td>144 B</td><td>NA</td>
+</thead><tbody><tr><td>DirectPollyExecution</td><td>.NET 9.0</td><td>.NET 9.0</td><td>232.5 ns</td><td>0.38 ns</td><td>0.34 ns</td><td>0.91</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>DirectPollyExecution</td><td>.NET 10.0</td><td>.NET 10.0</td><td>242.0 ns</td><td>0.59 ns</td><td>0.52 ns</td><td>0.95</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>DirectPollyExecution</td><td>.NET 8.0</td><td>.NET 8.0</td><td>255.7 ns</td><td>0.36 ns</td><td>0.34 ns</td><td>1.00</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>EcosystemPipelineExecution</td><td>.NET 10.0</td><td>.NET 10.0</td><td>413.8 ns</td><td>0.47 ns</td><td>0.39 ns</td><td>1.62</td><td>0.0086</td><td>144 B</td><td>NA</td>
+</tr><tr><td>EcosystemPipelineExecution</td><td>.NET 9.0</td><td>.NET 9.0</td><td>427.6 ns</td><td>2.08 ns</td><td>1.84 ns</td><td>1.67</td><td>0.0086</td><td>144 B</td><td>NA</td>
+</tr><tr><td>EcosystemPipelineExecution</td><td>.NET 8.0</td><td>.NET 8.0</td><td>496.6 ns</td><td>0.80 ns</td><td>0.71 ns</td><td>1.94</td><td>0.0086</td><td>144 B</td><td>NA</td>
+</tr><tr><td>ResultResilientExecution</td><td>.NET 10.0</td><td>.NET 10.0</td><td>512.3 ns</td><td>0.87 ns</td><td>0.77 ns</td><td>2.00</td><td>0.0086</td><td>144 B</td><td>NA</td>
+</tr><tr><td>ResultResilientExecution</td><td>.NET 9.0</td><td>.NET 9.0</td><td>537.1 ns</td><td>1.22 ns</td><td>1.09 ns</td><td>2.10</td><td>0.0086</td><td>144 B</td><td>NA</td>
+</tr><tr><td>EcosystemExecutorExecution</td><td>.NET 10.0</td><td>.NET 10.0</td><td>537.4 ns</td><td>2.33 ns</td><td>2.06 ns</td><td>2.10</td><td>0.0086</td><td>144 B</td><td>NA</td>
+</tr><tr><td>ResultResilientExecution</td><td>.NET 8.0</td><td>.NET 8.0</td><td>598.0 ns</td><td>1.11 ns</td><td>0.99 ns</td><td>2.34</td><td>0.0086</td><td>144 B</td><td>NA</td>
+</tr><tr><td>EcosystemExecutorExecution</td><td>.NET 9.0</td><td>.NET 9.0</td><td>610.0 ns</td><td>0.99 ns</td><td>0.87 ns</td><td>2.39</td><td>0.0086</td><td>144 B</td><td>NA</td>
+</tr><tr><td>EcosystemExecutorExecution</td><td>.NET 8.0</td><td>.NET 8.0</td><td>685.7 ns</td><td>1.57 ns</td><td>1.31 ns</td><td>2.68</td><td>0.0086</td><td>144 B</td><td>NA</td>
 </tr></tbody></table>
 </body>
 </html>
