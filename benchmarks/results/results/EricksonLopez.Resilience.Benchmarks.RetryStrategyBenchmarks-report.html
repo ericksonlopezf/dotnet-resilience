@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>EricksonLopez.Resilience.Benchmarks.RetryStrategyBenchmarks-20261018-065459</title>
+<title>EricksonLopez.Resilience.Benchmarks.RetryStrategyBenchmarks-20261025-071337</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -14,21 +14,21 @@
 <body>
 <pre><code>
 BenchmarkDotNet v0.15.8, Linux Ubuntu 24.04.5 LTS (Noble Numbat)
-AMD EPYC 7763 2.45GHz, 1 CPU, 4 logical and 2 physical cores
+INTEL XEON PLATINUM 8573C 3.20GHz, 1 CPU, 4 logical and 2 physical cores
 .NET SDK 10.0.402
-  [Host]    : .NET 10.0.13 (10.0.13, 10.0.1326.50504), X64 RyuJIT x86-64-v3
-  .NET 10.0 : .NET 10.0.13 (10.0.13, 10.0.1326.50504), X64 RyuJIT x86-64-v3
-  .NET 9.0  : .NET 9.0.21 (9.0.21, 9.0.2126.50404), X64 RyuJIT x86-64-v3
-  .NET 8.0  : .NET 8.0.32 (8.0.32, 8.0.3226.50405), X64 RyuJIT x86-64-v3
+  [Host]    : .NET 10.0.13 (10.0.13, 10.0.1326.50504), X64 RyuJIT x86-64-v4
+  .NET 10.0 : .NET 10.0.13 (10.0.13, 10.0.1326.50504), X64 RyuJIT x86-64-v4
+  .NET 9.0  : .NET 9.0.21 (9.0.21, 9.0.2126.50404), X64 RyuJIT x86-64-v4
+  .NET 8.0  : .NET 8.0.32 (8.0.32, 8.0.3226.50405), X64 RyuJIT x86-64-v4
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method                 </th><th>Job</th><th>Runtime</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+<thead><tr><th>Method                 </th><th>Job</th><th>Runtime</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 10.0</td><td>.NET 10.0</td><td>428.0 ns</td><td>0.61 ns</td><td>0.51 ns</td><td>0.64</td><td>0.0100</td><td>168 B</td><td>1.00</td>
-</tr><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 9.0</td><td>.NET 9.0</td><td>499.6 ns</td><td>1.90 ns</td><td>1.68 ns</td><td>0.75</td><td>0.0095</td><td>168 B</td><td>1.00</td>
-</tr><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 8.0</td><td>.NET 8.0</td><td>665.8 ns</td><td>0.74 ns</td><td>0.62 ns</td><td>1.00</td><td>0.0095</td><td>168 B</td><td>1.00</td>
+</thead><tbody><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 10.0</td><td>.NET 10.0</td><td>316.3 ns</td><td>3.47 ns</td><td>3.24 ns</td><td>0.64</td><td>0.01</td><td>0.0019</td><td>168 B</td><td>1.00</td>
+</tr><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 9.0</td><td>.NET 9.0</td><td>385.5 ns</td><td>2.82 ns</td><td>2.35 ns</td><td>0.77</td><td>0.01</td><td>0.0019</td><td>168 B</td><td>1.00</td>
+</tr><tr><td>SuccessfulPathWithRetryPolicy</td><td>.NET 8.0</td><td>.NET 8.0</td><td>497.6 ns</td><td>8.61 ns</td><td>8.06 ns</td><td>1.00</td><td>0.02</td><td>0.0019</td><td>168 B</td><td>1.00</td>
 </tr></tbody></table>
 </body>
 </html>
