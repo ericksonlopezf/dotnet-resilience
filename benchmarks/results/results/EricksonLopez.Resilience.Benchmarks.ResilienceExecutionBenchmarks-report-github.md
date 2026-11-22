@@ -1,7 +1,7 @@
 ```
 
 BenchmarkDotNet v0.15.8, Linux Ubuntu 26.04.1 LTS (Resolute Raccoon)
-AMD EPYC 7763 2.74GHz, 1 CPU, 4 logical and 2 physical cores
+AMD EPYC 7763 3.24GHz, 1 CPU, 4 logical and 2 physical cores
 .NET SDK 11.0.100
   [Host]    : .NET 10.0.15 (10.0.15, 10.0.1526.53008), X64 RyuJIT x86-64-v3
   .NET 10.0 : .NET 10.0.15 (10.0.15, 10.0.1526.53008), X64 RyuJIT x86-64-v3
@@ -12,15 +12,15 @@ AMD EPYC 7763 2.74GHz, 1 CPU, 4 logical and 2 physical cores
 ```
 | Method                     | Job       | Runtime   | Mean     | Error   | StdDev  | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
 |--------------------------- |---------- |---------- |---------:|--------:|--------:|------:|--------:|-------:|----------:|------------:|
-| DirectPollyExecution       | .NET 10.0 | .NET 10.0 | 223.6 ns | 0.68 ns | 0.56 ns |  0.87 |    0.01 |      - |         - |          NA |
-| DirectPollyExecution       | .NET 9.0  | .NET 9.0  | 236.8 ns | 1.78 ns | 1.66 ns |  0.92 |    0.01 |      - |         - |          NA |
-| DirectPollyExecution       | .NET 8.0  | .NET 8.0  | 257.5 ns | 2.14 ns | 1.90 ns |  1.00 |    0.01 |      - |         - |          NA |
-| EcosystemPipelineExecution | .NET 10.0 | .NET 10.0 | 405.0 ns | 1.79 ns | 1.59 ns |  1.57 |    0.01 | 0.0086 |     144 B |          NA |
-| EcosystemPipelineExecution | .NET 9.0  | .NET 9.0  | 452.5 ns | 1.53 ns | 1.20 ns |  1.76 |    0.01 | 0.0086 |     144 B |          NA |
-| ResultResilientExecution   | .NET 10.0 | .NET 10.0 | 487.3 ns | 1.05 ns | 0.99 ns |  1.89 |    0.01 | 0.0086 |     144 B |          NA |
-| EcosystemPipelineExecution | .NET 8.0  | .NET 8.0  | 511.1 ns | 2.98 ns | 2.64 ns |  1.99 |    0.02 | 0.0086 |     144 B |          NA |
-| ResultResilientExecution   | .NET 9.0  | .NET 9.0  | 536.9 ns | 4.69 ns | 3.91 ns |  2.09 |    0.02 | 0.0086 |     144 B |          NA |
-| EcosystemExecutorExecution | .NET 10.0 | .NET 10.0 | 544.0 ns | 4.64 ns | 4.11 ns |  2.11 |    0.02 | 0.0086 |     144 B |          NA |
-| ResultResilientExecution   | .NET 8.0  | .NET 8.0  | 579.9 ns | 6.50 ns | 5.76 ns |  2.25 |    0.03 | 0.0086 |     144 B |          NA |
-| EcosystemExecutorExecution | .NET 8.0  | .NET 8.0  | 657.8 ns | 3.02 ns | 2.52 ns |  2.56 |    0.02 | 0.0086 |     144 B |          NA |
-| EcosystemExecutorExecution | .NET 9.0  | .NET 9.0  | 658.4 ns | 4.34 ns | 3.62 ns |  2.56 |    0.02 | 0.0086 |     144 B |          NA |
+| DirectPollyExecution       | .NET 10.0 | .NET 10.0 | 229.2 ns | 0.41 ns | 0.39 ns |  0.83 |    0.00 |      - |         - |          NA |
+| DirectPollyExecution       | .NET 9.0  | .NET 9.0  | 230.8 ns | 0.76 ns | 0.67 ns |  0.83 |    0.00 |      - |         - |          NA |
+| DirectPollyExecution       | .NET 8.0  | .NET 8.0  | 276.4 ns | 1.23 ns | 1.02 ns |  1.00 |    0.01 |      - |         - |          NA |
+| EcosystemPipelineExecution | .NET 10.0 | .NET 10.0 | 398.5 ns | 3.10 ns | 2.75 ns |  1.44 |    0.01 | 0.0086 |     144 B |          NA |
+| EcosystemPipelineExecution | .NET 9.0  | .NET 9.0  | 426.5 ns | 0.83 ns | 0.69 ns |  1.54 |    0.01 | 0.0086 |     144 B |          NA |
+| EcosystemPipelineExecution | .NET 8.0  | .NET 8.0  | 483.3 ns | 6.94 ns | 6.15 ns |  1.75 |    0.02 | 0.0086 |     144 B |          NA |
+| ResultResilientExecution   | .NET 10.0 | .NET 10.0 | 495.5 ns | 3.44 ns | 3.22 ns |  1.79 |    0.01 | 0.0086 |     144 B |          NA |
+| ResultResilientExecution   | .NET 9.0  | .NET 9.0  | 524.7 ns | 6.06 ns | 5.06 ns |  1.90 |    0.02 | 0.0086 |     144 B |          NA |
+| EcosystemExecutorExecution | .NET 10.0 | .NET 10.0 | 527.5 ns | 4.37 ns | 3.65 ns |  1.91 |    0.01 | 0.0086 |     144 B |          NA |
+| ResultResilientExecution   | .NET 8.0  | .NET 8.0  | 579.8 ns | 2.43 ns | 2.03 ns |  2.10 |    0.01 | 0.0086 |     144 B |          NA |
+| EcosystemExecutorExecution | .NET 9.0  | .NET 9.0  | 616.2 ns | 1.16 ns | 0.97 ns |  2.23 |    0.01 | 0.0086 |     144 B |          NA |
+| EcosystemExecutorExecution | .NET 8.0  | .NET 8.0  | 663.6 ns | 3.72 ns | 3.30 ns |  2.40 |    0.01 | 0.0086 |     144 B |          NA |

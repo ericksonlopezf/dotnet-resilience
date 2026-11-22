@@ -1,6 +1,6 @@
 
 BenchmarkDotNet v0.15.8, Linux Ubuntu 26.04.1 LTS (Resolute Raccoon)
-AMD EPYC 7763 2.74GHz, 1 CPU, 4 logical and 2 physical cores
+AMD EPYC 7763 3.24GHz, 1 CPU, 4 logical and 2 physical cores
 .NET SDK 11.0.100
   [Host]    : .NET 10.0.15 (10.0.15, 10.0.1526.53008), X64 RyuJIT x86-64-v3
   .NET 10.0 : .NET 10.0.15 (10.0.15, 10.0.1526.53008), X64 RyuJIT x86-64-v3
@@ -10,6 +10,6 @@ AMD EPYC 7763 2.74GHz, 1 CPU, 4 logical and 2 physical cores
 
  Method                        | Job       | Runtime   | Mean     | Error   | StdDev  | Ratio | Gen0   | Allocated | Alloc Ratio |
 ------------------------------ |---------- |---------- |---------:|--------:|--------:|------:|-------:|----------:|------------:|
- ClosedCircuitHealthyExecution | .NET 10.0 | .NET 10.0 | 455.9 ns | 1.57 ns | 1.39 ns |  0.66 | 0.0100 |     168 B |        1.00 |
- ClosedCircuitHealthyExecution | .NET 9.0  | .NET 9.0  | 518.8 ns | 1.97 ns | 1.65 ns |  0.75 | 0.0095 |     168 B |        1.00 |
- ClosedCircuitHealthyExecution | .NET 8.0  | .NET 8.0  | 691.7 ns | 3.30 ns | 2.92 ns |  1.00 | 0.0095 |     168 B |        1.00 |
+ ClosedCircuitHealthyExecution | .NET 10.0 | .NET 10.0 | 447.6 ns | 3.71 ns | 3.29 ns |  0.66 | 0.0100 |     168 B |        1.00 |
+ ClosedCircuitHealthyExecution | .NET 9.0  | .NET 9.0  | 516.0 ns | 4.66 ns | 4.13 ns |  0.76 | 0.0095 |     168 B |        1.00 |
+ ClosedCircuitHealthyExecution | .NET 8.0  | .NET 8.0  | 683.2 ns | 5.06 ns | 4.49 ns |  1.00 | 0.0095 |     168 B |        1.00 |
