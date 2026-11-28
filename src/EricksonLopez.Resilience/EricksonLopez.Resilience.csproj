@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="EricksonLopez.Result" />
+    <PackageReference Include="System.Threading.RateLimiting" />
   </ItemGroup>
 
   <ItemGroup>
